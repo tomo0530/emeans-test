@@ -1,6 +1,16 @@
 [Japanese](./README.md)
 
-# `dsg-project-template`
+# emeans-test
+
+This project compares e-means with Lloyd, MiniBatch, and Elkan k-means.
+It is currently in the documentation phase; implementation and benchmarks
+have not started. See the Japanese [design and implementation plan](docs/plan/README.md)
+and [research](docs/research/2026-11-17-e-means-design/README.md).
+The target Python requirement is `>=3.14,<3.15`.
+
+The remaining instructions come from the copied template. Repository
+initialization/settings audits are unnecessary; implementation will align
+the runtime and commands with the experiment design.
 
 <!-- #### Please replace this with the official project name or repository name if needed. -->
 
@@ -11,9 +21,6 @@
 For how to create and use a project repository from `dsg-project-template`,
 see the Japanese guide
 [`dsg-project-template を使った DS 検証案件の進め方`](./docs/how-to-use-dsg-project-template.md).
-After creating a new repository from this template, verify GitHub repository
-settings by following
-[`docs/agents/recommended-repository-settings.md`](./docs/agents/recommended-repository-settings.md).
 
 Contributions to `dsg-project-template` are welcome.
 Please refer to the [Development Guide](https://github.com/abeja-inc/dsg-project-template/wiki/Development-Guide) and create an Issue / Pull Request.

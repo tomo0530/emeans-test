@@ -49,10 +49,6 @@ git --version
 make --version
 ```
 
-作成直後に [`docs/agents/recommended-repository-settings.md`](./agents/recommended-repository-settings.md) に従い、チーム権限、ブランチ ruleset、必須 CI、GitHub Actions 権限、Secrets を確認します。
-確認が完了したら、`.github/repository-initialization.yml` に対象リポジトリと監査結果を記録します。
-シークレット値は、同ファイルを含むリポジトリ内のどこにも記録しないでください。
-
 ### 1.2 README を案件向けに更新する
 
 `README.md` は、案件リポジトリの基本情報を集約する文書です。案件開始時には、

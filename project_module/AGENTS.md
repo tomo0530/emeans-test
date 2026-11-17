@@ -1,26 +1,22 @@
-# `project_module/` — DS Logic Rules
+# `project_module/` — Research Package Rules
 
-Code under this directory is the handoff unit from DS to ENG. It must
-follow the DS integration contract
-([`docs/ds_integration_contract.md`](../docs/ds_integration_contract.md)).
+Apply the root instructions and [experiment design](../docs/plan/README.md).
+The `e_means` package is a research runner and evaluation library,
+not a production DS-to-ENG handoff.
 
-Hard rules (see the contract for details and examples):
+* Use typed function contracts and frozen configuration models.
+  Annotate arrays with `numpy.typing.NDArray` and explicit dtypes;
+  document shape, axes, and finite-value assumptions.
+* Separate numerical training/evaluation from persistence and
+  orchestration. `data.py` and `runner.py` may perform specified I/O;
+  adapters return centroids and metrics through the shared types.
+* Resolve secrets at the CLI boundary and pass initialized resources
+  inward. Persist only the environment allowlist, never token values.
+* GPU imports may be lazy at adapter/worker boundaries so CPU tests
+  work without Torch/CUDA and device selection happens first.
+* Test the control algorithm with small numerical oracles and
+  independent evaluation. Keep benchmarks separate from unit tests.
 
-* Define `Input` / `Output` / `Config` as Pydantic models; expose the
-  logic as `invoke(input_data: Input) -> Output`, using the shared
-  `BaseInvokable` / `BaseFactory` from `project_module.base`.
-* No untyped fields — bare `dict[str, Any]` is forbidden. If a value
-  cannot be Pydantic-typed (Tensor / ndarray / DataFrame), document
-  dtype, shape, and meaning in the docstring
-  (see [`docs/agents/ml-and-data.md`](../docs/agents/ml-and-data.md)).
-* `invoke()` has no side effects: no DB writes, file saves, or global
-  state changes.
-* Constructors receive initialised objects only — never resolve env
-  vars, file paths, or connections inside the logic.
-* Environment-dependent I/O (files, DB, S3, external APIs) goes behind
-  an abstract interface with a verification-env implementation; ENG
-  supplies the production implementation.
-
-To extract logic from a notebook, use `/ds-extract`. Before handing
-off to ENG, run `/ds-contract-check` (other agents: read
-[`.claude/skills/`](../.claude/skills/) `*/SKILL.md` directly).
+Apply the [DS integration contract](../docs/ds_integration_contract.md)
+at a future production handoff boundary. Research functions do not
+need unused BaseInvokable or factory layers from the template.

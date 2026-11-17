@@ -1,6 +1,14 @@
 [English](./README_en.md)
 
-# `dsg-project-template`
+# emeans-test
+
+e-meansとk-means派生手法のクラスタ品質・学習時間を比較する技術検証です。
+現在は設計・計画段階です。[設計と実装計画](docs/plan/README.md) と
+[調査・協議](docs/research/2026-11-17-e-means-design/README.md) を参照してください。
+Pythonは `>=3.14,<3.15` を予定し、実装・依存更新・性能測定はまだ行っていません。
+
+以下はコピー元テンプレートの開発手順です。初期化・設定監査は不要で、
+実行環境とコマンドは今後の実装で検証に合わせて更新します。
 
 <!-- #### プロジェクトの正式名称もしくはリポジトリ名に書き換えてください。 -->
 
@@ -10,9 +18,6 @@
 
 `dsg-project-template` から案件用リポジトリを作成して使う手順は、
 [`dsg-project-template を使った DS 検証案件の進め方`](./docs/how-to-use-dsg-project-template.md)
-を参照してください。
-テンプレートから新しいリポジトリを作成した後の GitHub repository settings 確認は、
-[`docs/agents/recommended-repository-settings.md`](./docs/agents/recommended-repository-settings.md)
 を参照してください。
 
 `dsg-project-template` への Contribution は歓迎しています。

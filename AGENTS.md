@@ -25,23 +25,21 @@ Detailed rules live under [`docs/agents/`](./docs/agents/) — see §6.
   maintainability, and readability.
 * **Quality**: production-quality only. No hacks, quick-fixes,
   placeholder implementations, or core-logic TODO stubs.
-* **Consensus First**: in interactive sessions, present a plan and
-  obtain explicit user approval before generating or modifying code.
-  **If anything is ambiguous, ask the user — do not guess.** In
-  non-interactive automation (CI, batch jobs), execute only the scope
-  encoded in the job input.
+* Respect the user's current phase and persistent authorization.
+  The current phase is design, planning, review, commit, and push of
+  documentation; implementation has not been authorized yet.
+* Resolve technical choices within the agreed design. Ask only for
+  decisions that change the user's intent or authorized scope.
 
 ## 2. Project Overview
 
-<!-- #### Project-specific overview — replace this block upon adoption #### -->
-> [!NOTE]
-> **TEMPLATE PLACEHOLDER** — fill this in when adopting the template
-> and remove the notice.
-
-* See [`README.md`](./README.md) for directory layout, setup steps,
-  and dev container tips.
-* This repository is a `uv` workspace: the root project plus
-  `project_module/` and `libs/abeja-toolkit/*`.
+* This repository benchmarks e-means against Lloyd, MiniBatch, and
+  Elkan k-means, separating practical and controlled comparisons.
+* Read [`docs/plan/`](./docs/plan/README.md) before planning,
+  implementing, running, or reviewing experiments. Older research
+  proposals are evidence, not the current spec.
+* The copied template requires no repository initialization or
+  settings audit. Adapt tooling when implementation is authorized.
 
 ## 3. Critical Don'ts (Security & Safety)
 
@@ -49,8 +47,10 @@ Detailed rules live under [`docs/agents/`](./docs/agents/) — see §6.
   credentials. Load them from `.env` files.
 * **PII**: never commit customer data, PII, or logs / notebook
   outputs that contain them.
-* **Licensing**: use only permissive licenses (MIT, Apache-2.0, BSD).
-  GPL / copyleft is forbidden.
+* **Licensing**: application dependencies use permissive licenses
+  (MIT, Apache-2.0, BSD). GPL / copyleft code is excluded. Dataset
+  licenses are checked separately; retain attribution and conditions
+  for CC0 / CC BY benchmark vectors.
 * **Input validation**: validate and sanitize all user input
   (OWASP Top 10).
 * **Destructive Git**: never run `git reset --hard`,
@@ -59,51 +59,34 @@ Detailed rules live under [`docs/agents/`](./docs/agents/) — see §6.
 
 ## 4. Execution Environment
 
-* Run `uv` / `python` / `make` targets **inside the Docker dev
-  container by default** (`make docker-up-cpu` or
-  `make docker-up-gpu`, then `make docker-shell`). Host-only execution
-  requires the user's explicit confirmation.
-* Adding / removing dependencies modifies the environment — ask the
-  user before `uv add` / `uv remove`.
+* Target Python `>=3.14,<3.15` in the existing GPU-enabled Docker
+  container with uv. Verify execution context before installation.
+  Host execution is a separate decision; a missing Docker CLI is not
+  permission to change environments.
+* The user authorized autonomous commands, dependency/environment
+  changes (including `uv add` / `uv remove`), commits, and external
+  transmission within the task. The current documentation phase
+  still excludes implementation, installation, data downloads, and
+  benchmark runs.
 * `pyproject.toml` sets `exclude-newer = "1 week"` (dependency
   cooldowns) to mitigate supply-chain attacks. Do not bypass without
   user approval.
 
 ## 5. Workflow
 
-1. **Verify**: Run `git status` / `git branch`, identify the current
-   `owner/name` from the local `origin` URL without contacting GitHub,
-   and read only
-   [`.github/repository-initialization.yml`](./.github/repository-initialization.yml)
-   for the initial repository-settings check. For an ordinary task,
-   require schema version `2` and proceed without reading the detailed
-   settings guide only when either:
-   * `status` is `completed`, `repository` matches the current
-     `owner/name`, and the non-empty `completed_audit_revision` equals
-     `required_audit_revision`; or
-   * the current repository is `abeja-inc/dsg-project-template` and its
-     copied default marker has a non-empty `required_audit_revision`,
-     `status: pending`, and empty `repository` and
-     `completed_audit_revision` fields.
-
-   Treat a missing status file, an unsupported schema, or any values not
-   matching those cases—including `pending` outside the template
-   exception, a repository mismatch, or stale revisions—as incomplete.
-   Stop before ordinary task work, report the reason, and wait for
-   explicit approval to initialize. Do not read
-   [`docs/agents/recommended-repository-settings.md`](./docs/agents/recommended-repository-settings.md)
-   until that approval is given. Read it immediately when initialization
-   is approved or the user explicitly requests a fresh audit, even when
-   the local status is otherwise valid. Do not call GitHub settings APIs
-   during the initial local check or before initialization approval.
-2. **Plan & Align**: apply Consensus First (§1) and wait for approval.
-3. **Permission check**: ask before environment-modifying or
-   destructive commands.
+1. **Verify**: Run `git status` / `git branch` and identify the current
+   `owner/name` from the local `origin` URL without contacting GitHub.
+2. **Scope**: preserve the current phase and authorization. Read
+   [the workflow](./docs/agents/e-means-workflow.md) when planning work
+   batches, delegating, reviewing, committing, or pushing.
+3. **Protect work**: preserve existing changes; stage only task files
+   or hunks. Destructive Git requires explicit authorization for that
+   operation.
 4. **Minimal changes**: only touch what the task requires.
-5. **Implement & Test**: write / update tests following
+5. **Implement & Test** (code changes): write / update tests following
    [`docs/agents/testing.md`](./docs/agents/testing.md) (this includes
    bug fixes, flaky-test diagnosis, and test reviews), run `make test`.
-6. **Quality check**: `make fix` then `make all-lint` until clean
+6. **Quality check** (code changes): `make fix` then `make all-lint` until clean
    (verification order: format → type → lint).
 7. **Verify the result**: confirm the output actually satisfies the
    user's requirements and contains no anomalies (e.g. all-null
@@ -125,8 +108,8 @@ Read the relevant file for the task at hand:
 | Writing, running, diagnosing, or reviewing tests; coverage improvement | [`docs/agents/testing.md`](./docs/agents/testing.md) |
 | Linting / formatting / type-checking | [`docs/agents/linting.md`](./docs/agents/linting.md) |
 | ML, data, and notebooks | [`docs/agents/ml-and-data.md`](./docs/agents/ml-and-data.md) |
-| Repository initialization and settings audit | [`docs/agents/recommended-repository-settings.md`](./docs/agents/recommended-repository-settings.md) |
+| Experiment batches, model selection, review gates, documentation commit | [`docs/agents/e-means-workflow.md`](./docs/agents/e-means-workflow.md) |
 | Git, PR, branch naming, secret scanning | [`docs/agents/git-and-pr.md`](./docs/agents/git-and-pr.md) |
-| Writing DS logic in `project_module/` / handing it off to ENG (integration contract) | [`docs/ds_integration_contract.md`](./docs/ds_integration_contract.md) |
+| Preparing a production DS-to-ENG handoff (not the research runner) | [`docs/ds_integration_contract.md`](./docs/ds_integration_contract.md) |
 | Extracting DS logic from a notebook to `project_module/` | [`.claude/skills/ds-extract/SKILL.md`](./.claude/skills/ds-extract/SKILL.md) (`/ds-extract` skill in Claude Code; other agents read the file directly) |
 | Checking / refactoring DS logic against the integration contract | [`.claude/skills/ds-contract-check/SKILL.md`](./.claude/skills/ds-contract-check/SKILL.md) (`/ds-contract-check` skill in Claude Code; other agents read the file directly) |
