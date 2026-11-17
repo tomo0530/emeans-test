@@ -192,6 +192,7 @@ class ResourceConfig(ContractModel):
     gpu_pool: list[NonNegativeInt]
     gpu_memory_limit_bytes: PositiveInt
     host_memory_limit_bytes: PositiveInt
+    gpu_deterministic_algorithms: bool = False
 
 
 class ExperimentConfig(ContractModel):

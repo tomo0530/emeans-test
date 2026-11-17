@@ -4,17 +4,19 @@
 
 e-means と Lloyd、MiniBatch、Elkan k-means のクラスタ品質と学習時間を比較する実験リポジトリです。主な成果は、品質（MSE）と時間の関係を示す曲線です。固定の品質合格幅や全体の時間上限は設けず、事前に定めた条件・予算点・seedで比較します。
 
-実験コードの実装ゲートはOpus／Solの承認済みです。V100上のnative FP32演算と6手法の統合smokeを確認し、正式pilotへ進みます。本評価の性能結果はまだありません。実装と検証の現在地は[実装進捗](docs/plan/implementation-progress.md)を参照してください。
+既存B1–B3実装のゲートはOpus／Solの承認済みです。profile導入前sourceの181 CPU testと、導入後sourceの199 CPU test・10 GPU test・lintはそれぞれ成功しています。正式runnerの2 fresh process確認も完了しましたが、8 GPU再資格、全22条件preflight、干渉判定とpilotは未完了で、本評価の性能結果はありません。現在地は[実装進捗](docs/plan/implementation-progress.md)を参照してください。
 
 ## 実験の範囲
 
 - **データ**: VIBE配布のarXiv–NomicとLandmark–Nomicの既存埋め込み、および分布形状や規模を制御する合成データ12条件。原文書・原画像やencoderは取得・実行しません。
 - **比較手法**: CPUのFaiss Lloyd、NumPy e-means、scikit-learn MiniBatchKMeans、Elkan KMeansと、GPUのnative FP32 Torch e-means、Torch Lloyd対照。
-- **主評価**: 最終中心から独立計算するtest MSEとwarm training time。実用比較と、V100上でdevice・精度・assignment経路を揃えた比較を分けて扱います。
+- **主評価**: 最終中心から独立計算するtest MSEとwarm training time。GPUのTorch e-means/Lloydは共通のV100 native FP32再現性profileで比較する予定です。これは上流Torch既定条件での速度・品質を表さず、stock defaultのS0再現性失敗は独立findingとして残します。
 - **副次時間**: Resident-input pipelineは、共通input/初期中心の準備後、実測adapter呼出しの直前から計時し、centroid保存・fsync直後で終わります。GPU transfer・学習・保存を含み、データload/hash、初期化、評価や台帳I/Oは含みません。詳細は設計文書を参照してください。
 - **主条件**: 実データ10セルと合成12セルの計22セル、各10 seed。Elkanを含む全手法を対象とし、資源境界に合わないrunもinfeasibleとして記録します。
 
 設計・評価条件の正本は[設計と計画の索引](docs/plan/README.md)から確認できます。
+
+GPU profileの根拠、診断結果、適用範囲、未完了の資格確認は[GPU再現性profile記録](docs/research/2026-11-18-gpu-reproducibility.md)にまとめています。
 
 ## 環境とセットアップ
 

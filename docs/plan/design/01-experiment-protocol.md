@@ -19,6 +19,12 @@
 
 予算・点数上限・外部中心・明示した停止条件・device/dtype以外は固定上流版の既定値を使い、全resolved paramsを保存する。NumPy/Torch e-meansで共有するbatch/schedule/revivalのアルゴリズム設定は同値にし、版/経路固有の差は別に記録する。MiniBatchのreassignment_ratio等も記録し、主結果を見て調整しない。設定を変える判断はpilot後の凍結時にまとめる。
 
+## GPU再現性profile
+
+GPUの`torch_e_means`と`torch_lloyd`は、共通の`native-fp32-deterministic-v1` profileを使う方針とする。`CUBLAS_WORKSPACE_CONFIG=:4096:8`、`torch.use_deterministic_algorithms(True, warn_only=False)`、CUDA graph policy=`upstream_auto`を適用する。選択理由は既定の同seed再現性要件を満たすためで、観測MSEの値や速度ではない。上流source、FP32精度、batch/schedule/revival、seed、予算点、split、許容値は変えない。
+
+このprofileはPyTorch既定の実行条件そのものではない。GPU主図は「再現性を要求したV100/native FP32 Torch profile」での品質–時間比較として示し、stock defaultの速度・品質へ一般化しない。stockのS0再現許容違反と診断結果は独立findingとして残し、profile/cohort/CIをまたいで混ぜない。診断根拠・限界・未完了の資格確認は[GPU再現性profile記録](../../research/2026-11-18-gpu-reproducibility.md)を参照する。
+
 Faiss/e-meansの点数上限を全件条件へ明示設定し、実処理件数を確認する。MiniBatchのbatch抽出は手法自体なので残し、累積sample数と重複を含む処理件数を記録する。Lloyd/Elkanの収束停止は可能な範囲で無効化し、同一割当による早期収束は実反復数を記録する。通常L2を主比較にし、入力がunit normでも中心をunit normに制約しない。spherical k-meansは別の目的である。
 
 ## 配布データと取得条件
@@ -74,6 +80,8 @@ pilotでは実行適合、メモリ、時間計測の分解を確認する。表
 
 主品質は**test MSE**、主x軸はwarm **train_seconds**。最終保存centroidへの独立したexact squared L2最小値の点平均を用い、次元数では割らない。主曲線と主評価は変更しない。副次図は、範囲を版管理した`e2e_seconds`を **Resident-input pipeline (s)** として示す。validationは設定選択用とする。主評価器はFP32の距離計算とFP64集計を使い、微小入力のFP64総当たりと照合する。実装のobj、学習中label、approx assignmentを最終MSEに使わない。大きなnormでの相殺誤差はtiny oracleとFP64 spot checkで検出する。
 
+GPU手法の主曲線には上記の共通再現性profileを必ず表示する。stock診断は別profileの結果として別に報告し、主品質・時間・CIへpoolしない。deterministic profileの測定値からstock defaultの速度や一般的なGPU速度を推定しない。
+
 `e2e_seconds`の新しい範囲は`e2e_scope="resident-input-pipeline-v1"`で識別する。検証済みでresidentな共通inputと初期中心が用意された後、実測adapter呼出しの直前から、返されたcentroidの保存とfsyncが終わるまでの連続wall時間とする。GPU transfer、学習、centroidのCPU返却、保存を含む。初回data hash・検証、input load/cache、初期中心生成、git identity、NVML、評価、run台帳や他の管理I/O、warm-up、最終metrics/status書込は含めない。input load/cacheとwhole-trial wall時間は別metadataとして保存する。旧範囲の`e2e_seconds`にこのscopeを付け替えず、旧artifactは新しいpipeline集計と互換にしない。
 
 主runはtrain/validation/test MSE、成分別MSE（synthetic）、クラスタサイズ、空cluster、revival数、最大/平均サイズ比、非有限値・失敗を記録する。成分ごとの評価件数も保存し、Srare等で件数0ならgroup MSEはnullと理由empty_groupを残す。全体MSEの非有限値やrun失敗とは区別する。実データの意味的クラス精度をMSEだけから主張しない。
@@ -101,6 +109,8 @@ sentinelはpilot版S0/R0、seed100で、GPU=e-means T8/Lloyd I10、CPU=NumPy e-m
 parallel sentinelではwarm-upの後、CUDA入力転送と同期を終えてtrain timerを始める直前にだけ`before_train` hookを呼び、file-backed barrierで同期する。全参加者が揃った後に共通の将来release時刻を発行し、その時刻まで待って計測を開始する。warm-up、通常main、main-isolatedではhookを呼ばず待機しない。実際のtrain timerと同じ境界でadapterが`time.time_ns()`の開始・終了時刻を記録する。GPUの終了時刻はCUDA同期後に取る。8 UUID全員の成功、同じinput/init hash、非abort cohort、および8本の学習時間窓の正の共通overlapを確認する。共通時間、開始ずれ、overlap比を保存する。わずかなoverlapだけで干渉がないと結論せず、sentinelの資格条件はpilot前に固定する。参加不足、worker失敗、timeout、stale group、hash不一致はgroup全体を資格なしとし、黙って単独実行へ切り替えない。実行中attemptはinterruptedとして残し、再測定は新しい`group_id`、新しいrootで8参加者すべてを揃える。
 
 barrier waitはtrain timerから除外する一方、連続したResident-input pipelineには含め、`coordination_wait_seconds`として別記する。sentinelのpipeline値は通常のpipeline比較に混ぜず、sentinelの5%干渉判定はwarm `train_seconds`だけで行う。再現MSEの許容はGPU atol1e-6+rtol1e-4、CPU atol1e-6+rtol1e-5。計時差10%超は不安定として原因を調べる。これは数値/計時の検査で、手法間の品質合格幅ではない。pilot中にseed101の初回記録も保存し、最後に同seed101のsentinelを別measurement_idで再実行して比較する。
+
+stockのS0 engineering campaignは全48 runがsuccessだった一方、e-means同seed MSEの分散が数値再現許容を超え、campaign資格は不合格だった。この個別run statusをfailedへ書き換えず、campaignをunqualifiedとして保存する。新profileの正式runner fresh-process確認は完了したが、8 GPUのS0/大形状再資格・干渉判定は未完了であり、本評価開始前の必須gateとする。seed100・両GPU手法・最大予算による全22条件coverageの実行表準備は完了したが、GPU preflight実行は未着手である。8 GPU資格ではe-meansの各GPU fresh process 3反復すべてのcentroid SHA一致、Lloydの既定数値許容を使う。既存の181 CPU/10 GPU検証はprofile導入前sourceに対する結果で、新profileの資格確認には数えない。profile sourceの199 CPU test、10 GPU test、lintと正式runnerのfresh-process結果は[GPU再現性profile記録](../../research/2026-11-18-gpu-reproducibility.md)を参照する。
 
 R0とS0の代表予算点（e-means T=3,8、Lloyd I=10,50、MiniBatch pass=2,10）は全10seedでrepeat0–2を実行しseed内時間中央値を使う。他点はrepeat0。qualifiedな単独GPUと8 GPU同時sentinelのwarm `train_seconds`中央値が5%以上違えば、本計時の採用cohortをmain-isolatedにし単独GPUで行う。5%は測定干渉の検査値。採用cohortはpilot後・主test前に凍結し、元artifactを上書きしない。学習後の評価並列化を学習時間へ加算しない。
 

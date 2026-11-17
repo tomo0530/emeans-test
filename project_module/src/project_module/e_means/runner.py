@@ -41,10 +41,15 @@ from project_module.e_means.initialization import make_initial_centers
 
 _GPU_METHODS = {"torch_e_means", "torch_lloyd"}
 _SAMPLE_SECONDS = 0.1
+_DETERMINISTIC_WORKSPACE = ":4096:8"
 
 
 class FrozenIdentityError(RuntimeError):
     """A frozen input, environment, or existing artifact no longer agrees."""
+
+
+class DeterministicProfileUnsupported(RuntimeError):
+    """The required deterministic profile cannot execute a planned operation."""
 
 
 def _frozen_files(root: Path) -> dict[str, bytes]:
@@ -197,6 +202,9 @@ def _hardware_fingerprint(config: ExperimentConfig) -> dict[str, Any]:
         "driver": None,
         "cuda_runtime_distribution": None,
         "torch_distribution": None,
+        "gpu_runtime_profile": _gpu_runtime_requested(
+            config.resources.gpu_deterministic_algorithms
+        ),
     }
     for name, key in (
         ("nvidia-cuda-runtime-cu12", "cuda_runtime_distribution"),
@@ -234,13 +242,78 @@ def _hardware_fingerprint(config: ExperimentConfig) -> dict[str, Any]:
     return result
 
 
-def _spawn_with_threads(context: Any, target: Any, args: tuple[Any, ...], threads: int) -> Any:
+def _gpu_runtime_requested(enabled: bool) -> dict[str, Any]:
+    return {
+        "deterministic_algorithms_requested": enabled,
+        "deterministic_warn_only_requested": False,
+        "cublas_workspace_requested": _DETERMINISTIC_WORKSPACE if enabled else None,
+        "graph_policy": "upstream_auto",
+    }
+
+
+def _gpu_runtime_state(enabled: bool) -> dict[str, Any]:
+    import torch
+
+    try:
+        actual = {
+            "deterministic_algorithms_enabled": torch.are_deterministic_algorithms_enabled(),
+            "deterministic_warn_only": torch.is_deterministic_algorithms_warn_only_enabled(),
+            "cublas_workspace_config": os.environ.get("CUBLAS_WORKSPACE_CONFIG"),
+        }
+    except (AttributeError, RuntimeError, TypeError) as exc:
+        raise FrozenIdentityError("GPU runtime profile cannot be observed") from exc
+    if (
+        actual["deterministic_algorithms_enabled"],
+        actual["deterministic_warn_only"],
+        actual["cublas_workspace_config"],
+    ) != (enabled, False, _DETERMINISTIC_WORKSPACE if enabled else None):
+        raise FrozenIdentityError("GPU runtime profile differs from the frozen request")
+    try:
+        actual["cuda_matmul_allow_tf32"] = torch.backends.cuda.matmul.allow_tf32
+    except AttributeError, RuntimeError:
+        actual["cuda_matmul_allow_tf32"] = None
+    try:
+        actual["float32_matmul_precision"] = torch.get_float32_matmul_precision()
+    except AttributeError, RuntimeError:
+        actual["float32_matmul_precision"] = None
+    try:
+        actual["fill_uninitialized_memory"] = torch.utils.deterministic.fill_uninitialized_memory  # type: ignore[attr-defined]
+    except AttributeError, RuntimeError:
+        actual["fill_uninitialized_memory"] = None
+    return {**_gpu_runtime_requested(enabled), **actual}
+
+
+def _configure_gpu_runtime(enabled: bool) -> dict[str, Any]:
+    import torch
+
+    if os.environ.get("CUBLAS_WORKSPACE_CONFIG") != (_DETERMINISTIC_WORKSPACE if enabled else None):
+        raise FrozenIdentityError("GPU runtime profile workspace differs before initialization")
+    try:
+        torch.use_deterministic_algorithms(enabled, warn_only=False)
+    except (AttributeError, RuntimeError, TypeError) as exc:
+        raise FrozenIdentityError("GPU runtime profile could not be configured") from exc
+    return _gpu_runtime_state(enabled)
+
+
+def _spawn_with_threads(
+    context: Any,
+    target: Any,
+    args: tuple[Any, ...],
+    threads: int,
+    *,
+    gpu_deterministic_algorithms: bool | None = None,
+) -> Any:
     names = ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS")
     previous = {name: os.environ.get(name) for name in names}
+    previous_workspace = os.environ.get("CUBLAS_WORKSPACE_CONFIG")
     process = context.Process(target=target, args=args)
     try:
         for name in names:
             os.environ[name] = str(threads)
+        if gpu_deterministic_algorithms is True:
+            os.environ["CUBLAS_WORKSPACE_CONFIG"] = _DETERMINISTIC_WORKSPACE
+        elif gpu_deterministic_algorithms is False:
+            os.environ.pop("CUBLAS_WORKSPACE_CONFIG", None)
         process.start()
     finally:
         for name, value in previous.items():
@@ -248,6 +321,11 @@ def _spawn_with_threads(context: Any, target: Any, args: tuple[Any, ...], thread
                 os.environ.pop(name, None)
             else:
                 os.environ[name] = value
+        if gpu_deterministic_algorithms is not None:
+            if previous_workspace is None:
+                os.environ.pop("CUBLAS_WORKSPACE_CONFIG", None)
+            else:
+                os.environ["CUBLAS_WORKSPACE_CONFIG"] = previous_workspace
     return process
 
 
@@ -576,7 +654,12 @@ class _Monitor:
 
 
 def _environment(
-    spec: RunSpec, gpu: int | None, monitor: _Monitor, code: dict[str, Any]
+    spec: RunSpec,
+    gpu: int | None,
+    monitor: _Monitor,
+    code: dict[str, Any],
+    *,
+    gpu_deterministic_algorithms: bool = False,
 ) -> dict[str, Any]:
     result: dict[str, Any] = {
         "code": code,
@@ -630,6 +713,7 @@ def _environment(
             or any(pool["num_threads"] != 1 for pool in result.get("threadpools", []))
         ):
             raise RuntimeError("GPU host thread limit was not enforced")
+        result["gpu_runtime_profile"] = _gpu_runtime_state(gpu_deterministic_algorithms)
     return result
 
 
@@ -673,6 +757,19 @@ def _verify_success(
         != (key, config_hash, manifest_hash, init_hash, config.phase)
     ):
         raise ValueError("artifact identity mismatch")
+    if spec.device == "cuda":
+        requested = config.resources.gpu_deterministic_algorithms
+        profile = environment.get("gpu_runtime_profile")
+        expected = {
+            **_gpu_runtime_requested(requested),
+            "deterministic_algorithms_enabled": requested,
+            "deterministic_warn_only": False,
+            "cublas_workspace_config": _DETERMINISTIC_WORKSPACE if requested else None,
+        }
+        if not isinstance(profile, dict) or any(
+            profile.get(name) != value for name, value in expected.items()
+        ):
+            raise ValueError("GPU runtime profile artifact mismatch")
     if (
         centers.shape
         != (
@@ -734,6 +831,7 @@ def _trial(
     init_cache_hit: bool | None = None,
     frozen_files: dict[str, bytes] | None = None,
     sentinel: SentinelGroup | None = None,
+    gpu_runtime_initialized: dict[str, bool] | None = None,
 ) -> Path:
     from project_module.e_means.methods import train
 
@@ -783,6 +881,12 @@ def _trial(
         raise FrozenIdentityError("frozen identity run inputs mismatch")
     if spec.run_id != key[:20] or expected_key != key:
         raise FrozenIdentityError("frozen identity run key differs from ledger or collides")
+    if (
+        gpu is not None
+        and gpu_runtime_initialized is not None
+        and gpu_runtime_initialized.get("initialized", False)
+    ):
+        _gpu_runtime_state(config.resources.gpu_deterministic_algorithms)
     paths = sorted(run_dir.glob("attempt-*")) if run_dir.exists() else []
     if paths:
         last = paths[-1]
@@ -848,6 +952,14 @@ def _trial(
                         raise RuntimeError("native torch backend is unavailable") from exc
                     from threadpoolctl import threadpool_limits
 
+                    if gpu_runtime_initialized is None or not gpu_runtime_initialized.get(
+                        "initialized", False
+                    ):
+                        _configure_gpu_runtime(config.resources.gpu_deterministic_algorithms)
+                        if gpu_runtime_initialized is not None:
+                            gpu_runtime_initialized["initialized"] = True
+                    else:
+                        _gpu_runtime_state(config.resources.gpu_deterministic_algorithms)
                     torch.set_num_threads(1)
                     if torch.get_num_interop_threads() != 1:
                         torch.set_num_interop_threads(1)
@@ -861,6 +973,7 @@ def _trial(
                 import torch
                 from threadpoolctl import threadpool_limits
 
+                _gpu_runtime_state(config.resources.gpu_deterministic_algorithms)
                 threadpool_limits(limits=1)
                 torch.cuda.synchronize()
                 torch.cuda.empty_cache()
@@ -917,6 +1030,8 @@ def _trial(
             os.replace(temp, path / "centroids.npy")
             save_seconds = time.perf_counter() - save_start
             pipeline_seconds = time.perf_counter() - pipeline_start
+            if gpu is not None:
+                _gpu_runtime_state(config.resources.gpu_deterministic_algorithms)
             gpu_allocated = int(torch.cuda.max_memory_allocated()) if gpu is not None else None
             gpu_reserved = int(torch.cuda.max_memory_reserved()) if gpu is not None else None
 
@@ -965,7 +1080,13 @@ def _trial(
             and monitor.gpu_memory > config.resources.gpu_memory_limit_bytes
         ):
             raise MemoryError("frozen memory boundary exceeded")
-        environment = _environment(spec, gpu, monitor, code)
+        environment = _environment(
+            spec,
+            gpu,
+            monitor,
+            code,
+            gpu_deterministic_algorithms=config.resources.gpu_deterministic_algorithms,
+        )
         environment.update(
             gpu_peak_allocated_bytes=gpu_allocated,
             gpu_peak_reserved_bytes=gpu_reserved,
@@ -1027,6 +1148,8 @@ def _trial(
         }:
             raise FrozenIdentityError("frozen identity source changed during trial")
         _verify_success(path, spec, key, config, config_hash, manifest_hash, init_hash)
+        if gpu is not None:
+            _gpu_runtime_state(config.resources.gpu_deterministic_algorithms)
         _record(
             path,
             spec,
@@ -1051,19 +1174,31 @@ def _trial(
         raise
     except Exception as exc:
         _atomic(path / "error.log", _sanitize_error(exc).encode())
-        if sentinel is not None:
-            sentinel.abort("sentinel_trial_failed")
-            _record(path, spec, key, attempt, "interrupted", "sentinel_trial_failed", started)
-            raise SentinelCoordinationError("sentinel trial failed") from exc
         message = str(exc).lower()
+        deterministic_unsupported = (
+            isinstance(exc, RuntimeError)
+            and "deterministic" in message
+            and ("not" in message or "implementation" in message or "unavailable" in message)
+        )
+        if sentinel is not None:
+            reason = (
+                "sentinel_deterministic_unsupported"
+                if deterministic_unsupported
+                else "sentinel_trial_failed"
+            )
+            sentinel.abort(reason)
+            _record(path, spec, key, attempt, "interrupted", reason, started)
+            raise SentinelCoordinationError(reason) from exc
         status: Literal["failed", "infeasible", "unsupported"] = (
             "infeasible"
             if isinstance(exc, MemoryError) or "out of memory" in message
             else "unsupported"
-            if isinstance(exc, RuntimeError) and "native" in message and "unavailable" in message
+            if isinstance(exc, RuntimeError)
+            and (("native" in message and "unavailable" in message) or deterministic_unsupported)
             else "failed"
         )
-        _record(path, spec, key, attempt, status, type(exc).__name__, started)
+        reason = "deterministic_unsupported" if deterministic_unsupported else type(exc).__name__
+        _record(path, spec, key, attempt, status, reason, started)
     return path
 
 
@@ -1143,6 +1278,7 @@ def _worker_loop(
         os.sched_setaffinity(0, {core})
     warm: set[tuple[str, str]] = set()
     cache = _InputCache(data_root)
+    gpu_runtime_initialized = {"initialized": False}
     sentinel = SentinelGroup(*sentinel_params) if sentinel_params is not None else None
     while True:
         spec = requests.get()
@@ -1154,7 +1290,7 @@ def _worker_loop(
             dataset, init, data_hit, init_hit = cache.get(condition, spec.data_seed, spec.seed)
             data_load_seconds = time.perf_counter() - load_start
             minimum = min(next(m.budgets for m in config.methods if m.method == spec.method))
-            _trial(
+            attempt = _trial(
                 spec,
                 dataset,
                 root,
@@ -1171,7 +1307,16 @@ def _worker_loop(
                 init_cache_hit=init_hit,
                 frozen_files=frozen_files,
                 sentinel=sentinel,
+                gpu_runtime_initialized=gpu_runtime_initialized,
             )
+            record = RunRecord.model_validate_json((attempt / "status.json").read_bytes())
+            if (
+                config.resources.gpu_deterministic_algorithms
+                and record.reason_code == "deterministic_unsupported"
+            ):
+                raise DeterministicProfileUnsupported(
+                    "required deterministic GPU operation is unsupported"
+                )
             responses.put((device, spec.run_id, None, None))
         except Exception as exc:
             responses.put((device, spec.run_id, type(exc).__name__, _sanitize_error(exc)))
@@ -1435,6 +1580,7 @@ def _gpu_phase(
                 else None,
             ),
             1,
+            gpu_deterministic_algorithms=config.resources.gpu_deterministic_algorithms,
         )
         queues[device] = requests
         processes[device] = process
@@ -1473,6 +1619,10 @@ def _gpu_phase(
                         raise FrozenIdentityError("frozen identity changed during GPU phase")
                     if error == "SentinelCoordinationError":
                         raise SentinelCoordinationError("sentinel coordination failed")
+                    if error == "DeterministicProfileUnsupported":
+                        raise DeterministicProfileUnsupported(
+                            "required deterministic GPU operation is unsupported"
+                        )
                     if sentinel is not None:
                         sentinel.abort("sentinel_worker_failed")
                         _interrupt_record(spec, root, "sentinel_worker_failed")

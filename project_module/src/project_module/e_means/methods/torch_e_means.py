@@ -5,7 +5,7 @@ from time import perf_counter
 
 import numpy as np
 
-from project_module.e_means.contracts import RunSpec, TrainingResult, derive_seed
+from project_module.e_means.contracts import JSONValue, RunSpec, TrainingResult, derive_seed
 from project_module.e_means.methods import (
     BeforeTrain,
     Matrix,
@@ -65,7 +65,21 @@ def train(
         spherical=False,
         **params,
     )
-    centers, _ = model.train(data, init_centroids=initial)
+    graph_eligibility: list[JSONValue] = []
+    upstream_eligible = model._replay_eligible
+
+    def observe_eligibility(rows: object) -> bool:
+        eligible: bool = upstream_eligible(rows)
+        graph_eligibility.append({"upstream_eligible": eligible, "effective_eligible": eligible})
+        return eligible
+
+    # Observe the upstream decision without changing capture operation identities.
+    model._replay_eligible = observe_eligibility
+    try:
+        centers, _ = model.train(data, init_centroids=initial)
+    finally:
+        # Restore class lookup and release the bound-method reference cycle.
+        del model._replay_eligible
     torch.cuda.synchronize()
     timing = clock.finish(transfer=transfer, synchronized=True)
     transfer_start = perf_counter()
@@ -88,6 +102,9 @@ def train(
             "backend": "torch",
             "dtype": "float32",
             "assignment_backend": "native",
+            "graph_policy": "upstream_auto",
+            "graph_eligibility": graph_eligibility,
+            "graph_actual_replays": None,
             "actual_epochs": len(recipe["epoch_rows"]),
             "processed_rows": sum(recipe["epoch_rows"]),
             "revivals": model.n_splits,

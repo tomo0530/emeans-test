@@ -73,6 +73,14 @@ def test_torch_e_means_runs_native_fp32() -> None:
     assert result.centroids.dtype == np.float32
     assert result.stats["backend"] == "torch"
     assert result.stats["processed_rows"] > 0
+    assert result.stats["graph_policy"] == "upstream_auto"
+    observations = result.stats["graph_eligibility"]
+    assert observations and all(
+        isinstance(row["upstream_eligible"], bool)
+        and row["upstream_eligible"] == row["effective_eligible"]
+        for row in observations
+    )
+    assert result.stats["graph_actual_replays"] is None
 
 
 def test_unavailable_native_backend_is_unsupported(monkeypatch: pytest.MonkeyPatch) -> None:

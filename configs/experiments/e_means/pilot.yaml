@@ -1,5 +1,5 @@
 schema_version: 1
-plan_revision: '2026-11-17-timing-v2'
+plan_revision: '2026-11-18-cuda-deterministic-v1'
 phase: pilot
 conditions:
 - condition_id: pilot-arxiv_nomic-R0
@@ -101,6 +101,7 @@ measurement:
   evaluate_test: false
   repeat_rules: []
 resources:
+  gpu_deterministic_algorithms: true
   cpu_threads: 16
   cpu_affinity:
   - 0

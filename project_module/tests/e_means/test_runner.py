@@ -670,7 +670,7 @@ def test_gpu_host_memory_sum_aborts_and_interrupts_active_run(
             pass
 
     monkeypatch.setattr(runner.mp, "get_context", lambda method: SimpleNamespace(Queue=FakeQueue))
-    monkeypatch.setattr(runner, "_spawn_with_threads", lambda *args: FakeProcess())
+    monkeypatch.setattr(runner, "_spawn_with_threads", lambda *args, **kwargs: FakeProcess())
     monkeypatch.setattr(
         runner.psutil,
         "Process",
@@ -846,3 +846,416 @@ def test_train_group_diagnostics_are_excluded_from_assignment_time(
     assert timing["assign_seconds"] > 0
     assert timing["evaluate_seconds"] >= 0.15
     assert timing["assign_seconds"] < timing["evaluate_seconds"]
+
+
+@pytest.mark.parametrize(("enabled", "expected"), [(True, ":4096:8"), (False, None)])
+def test_gpu_worker_spawn_sets_workspace_before_import_and_restores_parent(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, enabled: bool, expected: str | None
+) -> None:
+    import multiprocessing as mp
+    import os
+    import subprocess
+    import sys
+
+    from project_module.e_means import runner
+
+    monkeypatch.setenv("CUBLAS_WORKSPACE_CONFIG", ":16:8")
+    target = tmp_path / "workspace.json"
+    script = "import json,os,sys; json.dump(os.environ.get('CUBLAS_WORKSPACE_CONFIG'),open(sys.argv[1],'w'))"
+    process = runner._spawn_with_threads(
+        mp.get_context("spawn"),
+        subprocess.run,
+        ([sys.executable, "-c", script, str(target)],),
+        1,
+        gpu_deterministic_algorithms=enabled,
+    )
+    process.join(20)
+    assert process.exitcode == 0
+    assert json.loads(target.read_text()) == expected
+    assert os.environ["CUBLAS_WORKSPACE_CONFIG"] == ":16:8"
+
+
+def test_gpu_determinism_changes_frozen_config_identity(tmp_path: Path) -> None:
+    from project_module.e_means import runner
+
+    config, data, output = _prepare(tmp_path)
+    stock_jobs = runner.prepare_jobs(config, data, output)
+    resources = config.resources.model_copy(update={"gpu_deterministic_algorithms": True})
+    changed = config.model_copy(update={"resources": resources})
+    with pytest.raises(runner.FrozenIdentityError, match="snapshot"):
+        runner.prepare_jobs(changed, data, output)
+    deterministic_root = tmp_path / "deterministic"
+    deterministic_jobs = runner.prepare_jobs(changed, data, deterministic_root)
+    assert stock_jobs[0].run_id != deterministic_jobs[0].run_id
+    stock_hardware = json.loads((output / "hardware.snapshot.json").read_text())
+    det_hardware = json.loads((deterministic_root / "hardware.snapshot.json").read_text())
+    assert stock_hardware["gpu_runtime_profile"]["cublas_workspace_requested"] is None
+    assert det_hardware["gpu_runtime_profile"]["cublas_workspace_requested"] == ":4096:8"
+
+
+def test_legacy_gpu_profile_records_disabled_determinism(monkeypatch: pytest.MonkeyPatch) -> None:
+    import sys
+    from types import SimpleNamespace
+
+    from project_module.e_means import runner
+
+    monkeypatch.delenv("CUBLAS_WORKSPACE_CONFIG", raising=False)
+    monkeypatch.setitem(
+        sys.modules,
+        "torch",
+        SimpleNamespace(
+            are_deterministic_algorithms_enabled=lambda: False,
+            is_deterministic_algorithms_warn_only_enabled=lambda: False,
+        ),
+    )
+    state = runner._gpu_runtime_state(False)
+    assert state["deterministic_algorithms_requested"] is False
+    assert state["deterministic_algorithms_enabled"] is False
+    assert state["cublas_workspace_config"] is None
+
+
+@pytest.mark.parametrize(
+    ("actual", "warn_only", "workspace"),
+    [
+        (False, False, ":4096:8"),
+        (True, True, ":4096:8"),
+        (True, False, ":16:8"),
+    ],
+)
+def test_gpu_profile_drift_aborts(
+    actual: bool, warn_only: bool, workspace: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import sys
+    from types import SimpleNamespace
+
+    from project_module.e_means import runner
+
+    monkeypatch.setenv("CUBLAS_WORKSPACE_CONFIG", workspace)
+    monkeypatch.setitem(
+        sys.modules,
+        "torch",
+        SimpleNamespace(
+            are_deterministic_algorithms_enabled=lambda: actual,
+            is_deterministic_algorithms_warn_only_enabled=lambda: warn_only,
+        ),
+    )
+    with pytest.raises(runner.FrozenIdentityError, match="GPU runtime profile"):
+        runner._gpu_runtime_state(True)
+
+
+@pytest.mark.parametrize("requested", [False, True])
+def test_gpu_profile_configures_strict_determinism(
+    monkeypatch: pytest.MonkeyPatch, requested: bool
+) -> None:
+    import sys
+    from types import SimpleNamespace
+
+    from project_module.e_means import runner
+
+    state = {"enabled": not requested, "warn_only": True}
+
+    def configure(enabled: bool, *, warn_only: bool) -> None:
+        state.update(enabled=enabled, warn_only=warn_only)
+
+    if requested:
+        monkeypatch.setenv("CUBLAS_WORKSPACE_CONFIG", ":4096:8")
+    else:
+        monkeypatch.delenv("CUBLAS_WORKSPACE_CONFIG", raising=False)
+    monkeypatch.setitem(
+        sys.modules,
+        "torch",
+        SimpleNamespace(
+            use_deterministic_algorithms=configure,
+            are_deterministic_algorithms_enabled=lambda: state["enabled"],
+            is_deterministic_algorithms_warn_only_enabled=lambda: state["warn_only"],
+        ),
+    )
+    result = runner._configure_gpu_runtime(requested)
+    assert result["deterministic_algorithms_requested"] is requested
+    assert result["deterministic_algorithms_enabled"] is requested
+    assert result["deterministic_warn_only"] is False
+    assert result["cublas_workspace_config"] == (":4096:8" if requested else None)
+
+
+def test_gpu_profile_drift_during_training_interrupts_attempt(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import sys
+    from types import SimpleNamespace
+
+    from project_module.e_means import methods, runner
+    from project_module.e_means.data import load_dataset
+
+    config, data, output = _prepare(tmp_path)
+    resources = config.resources.model_copy(update={"gpu_deterministic_algorithms": True})
+    config = config.model_copy(update={"resources": resources})
+    spec = runner.prepare_jobs(config, data, output)[0]
+    dataset = load_dataset("synthetic", data, condition_id="tiny", data_seed=7)
+    state = {"enabled": False, "calls": 0}
+    original = methods.train
+
+    def configure(enabled: bool, *, warn_only: bool) -> None:
+        assert warn_only is False
+        state["enabled"] = enabled
+
+    def train(*args: object, **kwargs: object) -> object:
+        result = original(*args, **kwargs)
+        state["calls"] += 1
+        if state["calls"] == 2:
+            state["enabled"] = False
+        return result
+
+    class Monitor:
+        rss = 0
+        gpu_memory = 0
+
+        def __init__(self, gpu: object) -> None:
+            pass
+
+        def __enter__(self) -> "Monitor":
+            return self
+
+        def __exit__(self, *args: object) -> None:
+            pass
+
+    cuda = SimpleNamespace(
+        synchronize=lambda: None, empty_cache=lambda: None, reset_peak_memory_stats=lambda: None
+    )
+    torch = SimpleNamespace(
+        cuda=cuda,
+        use_deterministic_algorithms=configure,
+        are_deterministic_algorithms_enabled=lambda: state["enabled"],
+        is_deterministic_algorithms_warn_only_enabled=lambda: False,
+        set_num_threads=lambda value: None,
+        get_num_interop_threads=lambda: 1,
+    )
+    monkeypatch.setenv("CUBLAS_WORKSPACE_CONFIG", ":4096:8")
+    monkeypatch.setitem(sys.modules, "torch", torch)
+    monkeypatch.setattr(methods, "train", train)
+    monkeypatch.setattr(runner, "_Monitor", Monitor)
+    with pytest.raises(runner.FrozenIdentityError, match="GPU runtime profile"):
+        runner._trial(
+            spec,
+            dataset,
+            output,
+            config,
+            resume=True,
+            retry_failed=False,
+            retry_reason=None,
+            gpu=0,
+            warm=set(),
+            minimum_budget=1,
+            gpu_runtime_initialized={"initialized": False},
+        )
+    status = json.loads((output / spec.run_id / "attempt-0001/status.json").read_text())
+    assert status["status"] == "interrupted"
+    assert status["reason_code"] == "frozen_identity_changed"
+
+
+def test_cpu_only_run_does_not_import_torch(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import builtins
+
+    from project_module.e_means import runner
+    from project_module.e_means.data import load_dataset
+
+    original_import = builtins.__import__
+
+    def reject_torch(name: str, *args: object, **kwargs: object) -> object:
+        if name == "torch" or name.startswith("torch."):
+            raise AssertionError("CPU-only execution imported Torch")
+        return original_import(name, *args, **kwargs)
+
+    config, data, output = _prepare(tmp_path)
+    monkeypatch.setattr(builtins, "__import__", reject_torch)
+    spec = runner.prepare_jobs(config, data, output)[0]
+    dataset = load_dataset("synthetic", data, condition_id="tiny", data_seed=7)
+    attempt = runner._trial(
+        spec,
+        dataset,
+        output,
+        config,
+        resume=True,
+        retry_failed=False,
+        retry_reason=None,
+        gpu=None,
+        warm=set(),
+        minimum_budget=1,
+    )
+    assert json.loads((attempt / "status.json").read_text())["status"] == "success"
+
+
+def test_gpu_profile_records_matmul_and_uninitialized_memory_settings(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import sys
+    from types import SimpleNamespace
+
+    from project_module.e_means import runner
+
+    monkeypatch.setenv("CUBLAS_WORKSPACE_CONFIG", ":4096:8")
+    monkeypatch.setitem(
+        sys.modules,
+        "torch",
+        SimpleNamespace(
+            are_deterministic_algorithms_enabled=lambda: True,
+            is_deterministic_algorithms_warn_only_enabled=lambda: False,
+            get_float32_matmul_precision=lambda: "highest",
+            backends=SimpleNamespace(
+                cuda=SimpleNamespace(matmul=SimpleNamespace(allow_tf32=False))
+            ),
+            utils=SimpleNamespace(deterministic=SimpleNamespace(fill_uninitialized_memory=True)),
+        ),
+    )
+    profile = runner._gpu_runtime_state(True)
+    assert profile["cuda_matmul_allow_tf32"] is False
+    assert profile["float32_matmul_precision"] == "highest"
+    assert profile["fill_uninitialized_memory"] is True
+
+
+def test_unsupported_deterministic_operation_is_explicit(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from project_module.e_means import methods, runner
+    from project_module.e_means.data import load_dataset
+
+    config, data, output = _prepare(tmp_path)
+    config = config.model_copy(
+        update={
+            "resources": config.resources.model_copy(update={"gpu_deterministic_algorithms": True})
+        }
+    )
+    spec = runner.prepare_jobs(config, data, output)[0]
+    dataset = load_dataset("synthetic", data, condition_id="tiny", data_seed=7)
+
+    def unsupported(*args: object, **kwargs: object) -> object:
+        raise RuntimeError("operation does not have a deterministic implementation")
+
+    monkeypatch.setattr(methods, "train", unsupported)
+    attempt = runner._trial(
+        spec,
+        dataset,
+        output,
+        config,
+        resume=True,
+        retry_failed=False,
+        retry_reason=None,
+        gpu=None,
+        warm=set(),
+        minimum_budget=1,
+    )
+    status = json.loads((attempt / "status.json").read_text())
+    assert status["status"] == "unsupported"
+    assert status["reason_code"] == "deterministic_unsupported"
+
+
+def test_deterministic_unsupported_worker_reports_phase_abort(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import queue
+
+    from project_module.e_means import runner
+
+    config, data, output = _prepare(tmp_path)
+    config = config.model_copy(
+        update={
+            "resources": config.resources.model_copy(update={"gpu_deterministic_algorithms": True})
+        }
+    )
+    spec = runner.prepare_jobs(config, data, output)[0]
+    path = output / spec.run_id / "attempt-0001"
+    path.mkdir(parents=True)
+    key = json.loads((output / "run-keys.json").read_text())[spec.run_id]
+    runner._record(path, spec, key, 1, "unsupported", "deterministic_unsupported")
+    monkeypatch.setattr(runner, "_trial", lambda *args, **kwargs: path)
+    monkeypatch.setattr(runner.os, "sched_setaffinity", lambda *args: None)
+    for name in (
+        "CUDA_VISIBLE_DEVICES",
+        "OMP_NUM_THREADS",
+        "MKL_NUM_THREADS",
+        "OPENBLAS_NUM_THREADS",
+    ):
+        monkeypatch.setenv(name, "test")
+    requests: queue.Queue = queue.Queue()
+    responses: queue.Queue = queue.Queue()
+    requests.put(spec)
+    requests.put(None)
+    runner._worker_loop(
+        0, "GPU-test", config, data, output, requests, responses, True, False, None, 0, {}, None
+    )
+    _, run_id, error, _ = responses.get_nowait()
+    assert run_id == spec.run_id
+    assert error == "DeterministicProfileUnsupported"
+    assert json.loads((path / "status.json").read_text())["status"] == "unsupported"
+
+
+def test_missing_determinism_api_aborts_as_frozen_identity(monkeypatch: pytest.MonkeyPatch) -> None:
+    import sys
+    from types import SimpleNamespace
+
+    from project_module.e_means import runner
+
+    monkeypatch.setitem(sys.modules, "torch", SimpleNamespace())
+    with pytest.raises(runner.FrozenIdentityError, match="GPU runtime profile"):
+        runner._gpu_runtime_state(True)
+
+
+def test_sentinel_deterministic_unsupported_interrupts_group(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from project_module.e_means import methods, runner
+    from project_module.e_means.data import load_dataset
+
+    class FakeSentinel:
+        reason: str | None = None
+
+        def abort(self, reason: str) -> None:
+            self.reason = reason
+
+    config, data, output = _prepare(tmp_path)
+    config = config.model_copy(
+        update={
+            "resources": config.resources.model_copy(update={"gpu_deterministic_algorithms": True})
+        }
+    )
+    spec = runner.prepare_jobs(config, data, output)[0]
+    dataset = load_dataset("synthetic", data, condition_id="tiny", data_seed=7)
+
+    def unsupported(*args: object, **kwargs: object) -> object:
+        raise RuntimeError("operation does not have a deterministic implementation")
+
+    monkeypatch.setattr(methods, "train", unsupported)
+    sentinel = FakeSentinel()
+    with pytest.raises(runner.SentinelCoordinationError, match="deterministic"):
+        runner._trial(
+            spec,
+            dataset,
+            output,
+            config,
+            resume=True,
+            retry_failed=False,
+            retry_reason=None,
+            gpu=None,
+            warm=set(),
+            minimum_budget=1,
+            sentinel=sentinel,
+        )
+    status = json.loads((output / spec.run_id / "attempt-0001/status.json").read_text())
+    assert status["status"] == "interrupted"
+    assert status["reason_code"] == "sentinel_deterministic_unsupported"
+    assert sentinel.reason == "sentinel_deterministic_unsupported"
+
+
+def test_missing_determinism_setter_aborts_as_frozen_identity(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import sys
+    from types import SimpleNamespace
+
+    from project_module.e_means import runner
+
+    monkeypatch.setenv("CUBLAS_WORKSPACE_CONFIG", ":4096:8")
+    monkeypatch.setitem(sys.modules, "torch", SimpleNamespace())
+    with pytest.raises(runner.FrozenIdentityError, match="GPU runtime profile"):
+        runner._configure_gpu_runtime(True)

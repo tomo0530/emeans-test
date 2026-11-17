@@ -1,5 +1,5 @@
 schema_version: 1
-plan_revision: '2026-11-17-timing-v2'
+plan_revision: '2026-11-18-cuda-deterministic-v1'
 phase: main
 conditions:
 - condition_id: S0
@@ -378,6 +378,7 @@ measurement:
     budget: 50
     repeats: 3
 resources:
+  gpu_deterministic_algorithms: true
   cpu_threads: 16
   cpu_affinity:
   - 0

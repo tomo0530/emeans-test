@@ -373,3 +373,15 @@ def test_sentinel_configuration_is_only_valid_for_parallel_pilot(phase: str, coh
     data["measurement"]["cohort"] = cohort
     with pytest.raises(ValidationError):
         ExperimentConfig.model_validate(data)
+
+
+def test_gpu_determinism_profile_defaults_false_and_round_trips() -> None:
+    legacy = ExperimentConfig.model_validate(config_data())
+    assert legacy.resources.gpu_deterministic_algorithms is False
+    data = config_data()
+    resources = dict(data["resources"])
+    resources["gpu_deterministic_algorithms"] = True
+    data["resources"] = resources
+    deterministic = ExperimentConfig.model_validate(data)
+    assert deterministic.resources.gpu_deterministic_algorithms is True
+    assert ExperimentConfig.model_validate_json(deterministic.model_dump_json()) == deterministic
