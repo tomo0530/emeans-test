@@ -59,21 +59,23 @@ jobs:
       - name: Setup python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
-          python-version: "3.12.15"
+          python-version: "3.14.9"
 
       - name: Installing dependencies
         run: |
           uv sync --all-groups
 
-      - name: Running ruff and mypy
+      - name: Check format, types, and lint
         env:
           PACKAGES: ${{ needs.find_packages.outputs.packages }}
         run: |
           failures=0
           for dir in $PACKAGES; do
-            echo "Running Ruff in $dir"
-            uv run ruff check --config ./ruff.toml "$dir" || failures=1
+            echo "Checking format in $dir"
+            uv run ruff format --config ./ruff.toml --check "$dir" || failures=1
             echo "Running mypy in $dir"
             uv run mypy --config-file ./mypy.ini "$dir" || failures=1
+            echo "Running Ruff in $dir"
+            uv run ruff check --config ./ruff.toml "$dir" || failures=1
           done
           exit $failures

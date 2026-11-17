@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "plan_revision": "tiny-v1",
+  "phase": "pilot",
+  "conditions": [{"condition_id": "tiny", "dataset_id": "synthetic", "n_train": 4, "k": 2, "dimension": 2, "data_seeds": [42], "generator_params": {"components": 2}}],
+  "methods": [{"method": "faiss_lloyd", "budgets": [1, 2], "params": {}}],
+  "seeds": [1],
+  "measurement": {"cohort": "pilot", "repeats": 1, "evaluate_test": false},
+  "resources": {"cpu_threads": 1, "cpu_affinity": [0], "gpu_pool": [0], "gpu_memory_limit_bytes": 1024, "host_memory_limit_bytes": 4096}
+}

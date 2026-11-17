@@ -188,9 +188,9 @@ setup-vscode-insiders: ## Install recommended VSCode Insiders extensions for Pyt
 
 all-lint: ## Run lint, format, and type-check (Usage: make all-lint <file_or_directory>. Default is current directory)
 	$(eval args := $(filter-out $@,$(MAKECMDGOALS)))
-	$(MAKE) --no-print-directory lint $(args)
 	$(MAKE) --no-print-directory format $(args)
 	$(MAKE) --no-print-directory type-check $(args)
+	$(MAKE) --no-print-directory lint $(args)
 
 lint: ## Run linters (Usage: make lint <file_or_directory>. Default is current directory). Note: This target only checks linting issues. If you want to automatically fix linting issues, please use 'make lint-fix'
 	@echo "⚠️ Warning: 'make lint' is different from the previous version of 'make lint'."

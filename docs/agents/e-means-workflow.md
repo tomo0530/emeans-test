@@ -5,10 +5,10 @@ The [design and plan](../plan/README.md) owns experiment values/interfaces.
 
 ## Scope and authorization
 
-The current request authorizes documentation, reviews, commits, and a
-final push after approval. Implementation is explicitly deferred.
-Autonomous dependency/environment changes and commands are authorized
-for later implementation; do not ask for the same permission again.
+The active goal authorizes all B1–B4 implementation, public data and
+benchmark runs, reviews, commits, and final push. Autonomous dependency
+and environment changes are authorized; do not ask for the same
+permission again.
 Keep cooldowns and preserve unrelated work.
 
 ## Batches and ownership
@@ -38,7 +38,7 @@ Fable/Opus selections when the native subagent tool does not offer them.
 
 ## Review gates
 
-For this design/plan commit, require explicit approval from Claude
+For the original design/plan commit, require explicit approval from Claude
 Fable xhigh and fresh Astra xhigh. Protocol/evaluation/execution safety
 also require final Opus xhigh and GPT-6.1 Sol xhigh approval. Review
 the complete set in parallel with explicit scope and bounded requests.
@@ -62,10 +62,12 @@ Use a topic branch and explicit staging allowlist. Exclude
 Preserve existing
 dependency/container/skill/library edits. Check staged content,
 whitespace, links, and secret scanning before the documentation commit.
-After all four required documentation approvals, push once at the end
+The original design/plan gate is complete. Publish the implementation branch once at the end
 and verify the remote head. Remove only disposable
 worktrees created for this task. Create a PR only when requested.
 
 For code batches, run meaningful tests and format -> type -> lint before
-the final gate. For this documentation batch, run document checks and
-secret scanning without installing the experiment for make targets.
+the final gate. Keep one environment with the GPU extra throughout a
+combined CPU/GPU experiment; plain uv run can remove optional packages.
+Experiment identity includes the frozen commit. Resume from that commit
+after report-only commits rather than rewriting an existing ledger.

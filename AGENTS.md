@@ -26,8 +26,8 @@ Detailed rules live under [`docs/agents/`](./docs/agents/) — see §6.
 * **Quality**: production-quality only. No hacks, quick-fixes,
   placeholder implementations, or core-logic TODO stubs.
 * Respect the user's current phase and persistent authorization.
-  The current phase is design, planning, review, commit, and push of
-  documentation; implementation has not been authorized yet.
+  The current user goal authorizes implementation, dependency changes,
+  experiment execution, reviews, commits, and final push for B1–B4.
 * Resolve technical choices within the agreed design. Ask only for
   decisions that change the user's intent or authorized scope.
 
@@ -65,12 +65,12 @@ Detailed rules live under [`docs/agents/`](./docs/agents/) — see §6.
   permission to change environments.
 * The user authorized autonomous commands, dependency/environment
   changes (including `uv add` / `uv remove`), commits, and external
-  transmission within the task. The current documentation phase
-  still excludes implementation, installation, data downloads, and
-  benchmark runs.
+  transmission within the task. The active goal includes implementation,
+  installation, public data downloads, benchmark runs, and report delivery.
 * `pyproject.toml` sets `exclude-newer = "1 week"` (dependency
   cooldowns) to mitigate supply-chain attacks. Do not bypass without
-  user approval.
+  user approval. The user approved a cooldown exception for the pinned
+  faiss-cpu 1.16.0 artifact; do not extend it to other dependencies.
 
 ## 5. Workflow
 

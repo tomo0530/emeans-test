@@ -110,7 +110,7 @@ RUN echo "apt refresh: ${APT_REFRESH}" \
 # ==========================================
 FROM base AS base-python
 
-ARG PYTHON_VERSION=3.12.15
+ARG PYTHON_VERSION=3.14.9
 
 # Make uv-managed Python placement explicit
 # NOTE: https://docs.astral.sh/uv/reference/storage/#python-versions

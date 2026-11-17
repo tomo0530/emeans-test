@@ -72,7 +72,9 @@ pilotでは実行適合、メモリ、時間計測の分解を確認する。表
 
 ## 評価と曲線
 
-主品質は**test MSE**、主x軸はwarm **train_seconds**。最終保存centroidへの独立したexact squared L2最小値の点平均を用い、次元数では割らない。train MSEとE2Eは別panel、validationは設定選択用とする。主評価器はFP32の距離計算とFP64集計を使い、微小入力のFP64総当たりと照合する。実装のobj、学習中label、approx assignmentを最終MSEに使わない。大きなnormでの相殺誤差はtiny oracleとFP64 spot checkで検出する。
+主品質は**test MSE**、主x軸はwarm **train_seconds**。最終保存centroidへの独立したexact squared L2最小値の点平均を用い、次元数では割らない。主曲線と主評価は変更しない。副次図は、範囲を版管理した`e2e_seconds`を **Resident-input pipeline (s)** として示す。validationは設定選択用とする。主評価器はFP32の距離計算とFP64集計を使い、微小入力のFP64総当たりと照合する。実装のobj、学習中label、approx assignmentを最終MSEに使わない。大きなnormでの相殺誤差はtiny oracleとFP64 spot checkで検出する。
+
+`e2e_seconds`の新しい範囲は`e2e_scope="resident-input-pipeline-v1"`で識別する。検証済みでresidentな共通inputと初期中心が用意された後、実測adapter呼出しの直前から、返されたcentroidの保存とfsyncが終わるまでの連続wall時間とする。GPU transfer、学習、centroidのCPU返却、保存を含む。初回data hash・検証、input load/cache、初期中心生成、git identity、NVML、評価、run台帳や他の管理I/O、warm-up、最終metrics/status書込は含めない。input load/cacheとwhole-trial wall時間は別metadataとして保存する。旧範囲の`e2e_seconds`にこのscopeを付け替えず、旧artifactは新しいpipeline集計と互換にしない。
 
 主runはtrain/validation/test MSE、成分別MSE（synthetic）、クラスタサイズ、空cluster、revival数、最大/平均サイズ比、非有限値・失敗を記録する。成分ごとの評価件数も保存し、Srare等で件数0ならgroup MSEはnullと理由empty_groupを残す。全体MSEの非有限値やrun失敗とは区別する。実データの意味的クラス精度をMSEだけから主張しない。
 
@@ -88,13 +90,19 @@ pilotでは実行適合、メモリ、時間計測の分解を確認する。表
 
 ## 計時と資源
 
-warm training（初期中心注入、train、finalize）、最終exact labels、読込/転送/保存を含むE2E、cold import/JITを別々に保存する。MSE評価はtrain時間外で双方同じ扱いにし、評価器自体の時間も残す。GPUは前後同期したwall timeを主とし、CUDA eventは補助。自己申告メモリだけでなくpeak RSS、NVML device memory、可能なら割当/更新別時間も残す。
+warm training（初期中心注入、train、finalize）、最終exact labels、Resident-input pipeline、cold import/JITを別々に保存する。`assign_seconds`はtrain splitに対する一度の`evaluate_centers(train)`だけを測る。この処理ではfinal exact labelsとtrain MSE/cluster countsが融合しているため、その全時間を記録し、純粋なassignment kernel時間とは呼ばない。syntheticのtrain group評価、validation/test評価、その他の診断は`evaluate_seconds`へ分け、`assign_seconds`と二重計上しない。実際に使ったevaluator thread数とbackendを記録する。現行計画値はCPU 16 threads、GPU 1 threadである。GPUの学習時間は前後同期したwall timeを主とし、CUDA eventは補助とする。resident pipelineでは評価を終えてからcentroidを保存するのではなく、学習直後に保存・fsyncして計時窓を閉じ、その後に評価する。input load/cache、初期中心準備とwhole-trial wall時間はmetadataに残す。
+
+GPUのrunごとのallocator peakを取るため、warm-up後かつmeasured H2D transfer前にCUDA同期、`empty_cache()`、`reset_peak_memory_stats()`を行う。`max_memory_allocated`と`max_memory_reserved`をrunごとに保存する。NVMLのdevice使用量はCUDA contextや外部processを含む補助的な総使用量として別記し、run固有peakと同一視しない。worker RSS合計が運用上限を超えた場合はphaseをabortし、実行中runをinterruptedとして保全する。共有pageを含む合計RSS超過だけで個別runを`infeasible`にしない。個別GPU OOMは従来どおり`infeasible`とする。
 
 CPU主計時は1 NUMA nodeの16物理coreへ固定し、CPU baseline同士とGPU jobを同時に計時しない。GPUは1trial1GPU、1物理CPU coreを割り当て、BLAS/Torch host threads=1。workerはphase中常駐し、(worker,method,cell)の初回に最小予算の捨てrunでwarm-upする。その時間はcold/warmup記録へ分離する。複数GPUの総throughputと1trial速度は分け、method割当をseedで巡回する。
 
-sentinelはpilot版S0/R0、seed100で、GPU=e-means T8/Lloyd I10、CPU=NumPy e-means T8/Faiss Lloyd I10を使う。GPU全8枚で同じ入力/初期中心を使い、単独/同時とrepeat0–2を別measurement_idで保存する。再現MSEの許容はGPU atol1e-6+rtol1e-4、CPU atol1e-6+rtol1e-5。計時差10%超は不安定として原因を調べる。これは数値/計時の検査で、手法間の品質合格幅ではない。pilot中にseed101の初回記録も保存し、最後に同seed101のsentinelを別measurement_idで再実行して比較する。
+sentinelはpilot版S0/R0、seed100で、GPU=e-means T8/Lloyd I10、CPU=NumPy e-means T8/Faiss Lloyd I10を使う。単独/同時とrepeat0–2は別measurement_idで保存する。CPU比較は従来どおりである。並列GPU sentinelはpilotに限り、8個の凍結済みGPU UUIDを参加者として固定し、1 participant・1 CLIにつき1 GPU、共有host memory reservation 48 GiBを使う。既存のshared phase lockとGPUごとのexclusive lockを維持する。任意の`measurement.sentinel`は`group_id`、`participants`、`members`、`timeout_seconds`を持ち、timeoutは300秒とする。groupは一度限りで、同じgroupを再開・再利用しない。
 
-R0とS0の代表予算点（e-means T=3,8、Lloyd I=10,50、MiniBatch pass=2,10）は全10seedでrepeat0–2を実行しseed内時間中央値を使う。他点はrepeat0。単独GPUと8GPU同時sentinelの中央値が5%以上違えば、本計時の採用cohortをmain-isolatedにし単独GPUで行う。5%は測定干渉の検査値。採用cohortはpilot後・主test前に凍結し、元artifactを上書きしない。学習後の評価並列化を学習時間へ加算しない。
+parallel sentinelではwarm-upの後、CUDA入力転送と同期を終えてtrain timerを始める直前にだけ`before_train` hookを呼び、file-backed barrierで同期する。全参加者が揃った後に共通の将来release時刻を発行し、その時刻まで待って計測を開始する。warm-up、通常main、main-isolatedではhookを呼ばず待機しない。実際のtrain timerと同じ境界でadapterが`time.time_ns()`の開始・終了時刻を記録する。GPUの終了時刻はCUDA同期後に取る。8 UUID全員の成功、同じinput/init hash、非abort cohort、および8本の学習時間窓の正の共通overlapを確認する。共通時間、開始ずれ、overlap比を保存する。わずかなoverlapだけで干渉がないと結論せず、sentinelの資格条件はpilot前に固定する。参加不足、worker失敗、timeout、stale group、hash不一致はgroup全体を資格なしとし、黙って単独実行へ切り替えない。実行中attemptはinterruptedとして残し、再測定は新しい`group_id`、新しいrootで8参加者すべてを揃える。
+
+barrier waitはtrain timerから除外する一方、連続したResident-input pipelineには含め、`coordination_wait_seconds`として別記する。sentinelのpipeline値は通常のpipeline比較に混ぜず、sentinelの5%干渉判定はwarm `train_seconds`だけで行う。再現MSEの許容はGPU atol1e-6+rtol1e-4、CPU atol1e-6+rtol1e-5。計時差10%超は不安定として原因を調べる。これは数値/計時の検査で、手法間の品質合格幅ではない。pilot中にseed101の初回記録も保存し、最後に同seed101のsentinelを別measurement_idで再実行して比較する。
+
+R0とS0の代表予算点（e-means T=3,8、Lloyd I=10,50、MiniBatch pass=2,10）は全10seedでrepeat0–2を実行しseed内時間中央値を使う。他点はrepeat0。qualifiedな単独GPUと8 GPU同時sentinelのwarm `train_seconds`中央値が5%以上違えば、本計時の採用cohortをmain-isolatedにし単独GPUで行う。5%は測定干渉の検査値。採用cohortはpilot後・主test前に凍結し、元artifactを上書きしない。学習後の評価並列化を学習時間へ加算しない。
 
 メモリ適合しないElkan等はOOMを再現し続けずinfeasibleと記録する。予算によるtimeoutを設定する場合はpilot実測に基づく運用上の監視値を凍結し、打切り値と成功時間を混同しない。固定の全体GPU時間上限は置かない。
 
@@ -102,4 +110,4 @@ R0とS0の代表予算点（e-means T=3,8、Lloyd I=10,50、MiniBatch pass=2,10�
 
 全22セルについて、適合する必須手法・予算点・10seedのrun台帳が埋まり、successful/failed/infeasible/unsupportedが区別されること。必須手法全体の欠落は部分完了とする。失敗を除いて優劣を作らず、未到達も含めて描画する。共通初期値、split、設定、上流版、実backend/dtype、失敗理由を追跡でき、別seed sentinelの再実行が再現許容範囲にあることを確認する。
 
-最後に条件別の得意不得意、計時干渉、warm/E2E差、未実証範囲を日本語レポートへまとめる。DEEP96/IVF等の追加は、この完了を置き換えない。
+最後に条件別の得意不得意、計時干渉、warm trainingとResident-input pipelineの差、未実証範囲を日本語レポートへまとめる。DEEP96/IVF等の追加は、この完了を置き換えない。
