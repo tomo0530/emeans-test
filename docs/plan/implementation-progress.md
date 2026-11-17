@@ -9,7 +9,7 @@
 | B2-B: adapter | 完了・ゲート承認済み | CPU17件・V100 GPU10件成功。6手法CLI成功、転送同期後hookと実train窓 | 正式pilotで規模確認 |
 | B2-C: 評価・分析 | 完了・ゲート承認済み | 評価14・解析42・sentinel資格18件成功。frozen hash/manifest、新scope照合 | 実測の集計・報告 |
 | B3: runner・smoke | 完了・旧sourceのゲート承認済み | 通常suite181成功、明示GPU10成功、全体format/type/lint、実worker強制終了と復旧。すべてprofile導入前sourceの証拠 | 新profileの8GPU再資格・全条件preflightはB4で実施 |
-| B4: pilot・凍結・主評価・報告 | 未完了 | profile source: 199 CPU PASS/10 deselected、GPU 10 PASS・skipなし、format 83 files / mypy 29 / ruff PASS。正式runner fresh 2 processで両GPU手法を各3反復、計12 run success・各手法SHA6/6一致。全22条件のseed100・両GPU手法最大予算preflight表は準備済み、GPU実行は未着手。stock S0 campaignは48 run successだがe-means再現資格失敗。正式pilot・主test評価はまだ | 全条件preflight実行、8GPU S0/大形状再資格、干渉判定、主cohort凍結gate、全本評価、報告・最終gate |
+| B4: pilot・凍結・主評価・報告 | 未完了 | 最新CPU affinity修正source: 201 CPU PASS/10 deselected、変更のないGPU経路の10 PASS・skipなし、format 83 files / mypy 29 / ruff PASS。正式runner fresh 2 processで両GPU手法を各3反復、計12 run success・各手法SHA6/6一致。全22条件のseed100・両GPU手法最大予算preflight表は準備済み、GPU実行は未着手。stock S0 campaignは48 run successだがe-means再現資格失敗。正式pilot・主test評価はまだ | 全条件preflight実行、8GPU S0/大形状再資格、干渉判定、主cohort凍結gate、全本評価、報告・最終gate |
 
 ## 最終ゲートと検証
 
@@ -32,3 +32,9 @@ parallel sentinelは8 UUID・single-use group・timeoutをfreezeし、転送同�
 公開vector以外のencoder・原文書・原画像は使いません。追加API keyは不要でHF_TOKENは任意です。data/centroid/run logはGit管理外です。一般cooldown1週は維持し、Faiss1.16 wheelだけユーザー承認済み0日例外を使用しました。
 
 B4の完了までgoalを完了にしません。[profile変更ゲート](../reviews/2026-11-18-gpu-profile.md)もOpus/Solが承認しました。次の2ゲートは、pilot後・主test観測前のprotocol freezeと、本評価後の科学的報告についてOpus/Solへまとめて依頼します。
+
+## CPU affinity起動監査の追補
+
+CPU workerをspawnする前に親の呼出threadを指定16コアへ一時pinし、NumPy import時の全OpenBLAS threadへ継承させました。実workerは16/16 threadがCPU0–15となり、正常・例外時とも親maskと環境値を復元します。全201 CPU test・全体品質が通過し、Opus/Solもこの変更を承認しました。GPU経路・手法・設定は変えていません。
+
+発見時点で正式CPU計時と主testは未開始でした。旧GPU preflight6条件・12 successを保全し、source identityが変わるため新freezeと新rootで全22条件をやり直します。旧rootを完了扱いせず、main前の別protocol gateを維持します。

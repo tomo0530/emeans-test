@@ -1259,3 +1259,120 @@ def test_missing_determinism_setter_aborts_as_frozen_identity(
     monkeypatch.setitem(sys.modules, "torch", SimpleNamespace())
     with pytest.raises(runner.FrozenIdentityError, match="GPU runtime profile"):
         runner._configure_gpu_runtime(True)
+
+
+def test_cpu_spawn_all_imported_blas_threads_inherit_affinity_and_parent_is_restored(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import multiprocessing as mp
+    import os
+    import time
+
+    from project_module.e_means import runner
+
+    original_affinity = os.sched_getaffinity(0)
+    if len(original_affinity) < 16:
+        pytest.skip("the 16-core CPU profile is unavailable")
+    selected = set(sorted(original_affinity)[:16])
+    for name in ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS"):
+        monkeypatch.setenv(name, "7")
+    config, data, output = _prepare(tmp_path)
+    resources = config.resources.model_copy(
+        update={"cpu_threads": 16, "cpu_affinity": sorted(selected)}
+    )
+    config = config.model_copy(update={"resources": resources})
+    jobs = runner.prepare_jobs(config, data, output)[:1]
+    real_context = mp.get_context("spawn")
+    captured: dict[str, object] = {}
+
+    class ObservedContext:
+        def Queue(self) -> object:
+            return real_context.Queue()
+
+        def Process(self, *args: object, **kwargs: object) -> object:
+            process = real_context.Process(*args, **kwargs)
+            captured["process"] = process
+            return process
+
+    def inspect_before_dispatch(*args: object) -> None:
+        process = captured["process"]
+        deadline = time.monotonic() + 15
+        masks: list[set[int]] = []
+        while time.monotonic() < deadline:
+            tasks = list((Path(f"/proc/{process.pid}/task")).iterdir())
+            try:
+                masks = [os.sched_getaffinity(int(task.name)) for task in tasks]
+            except ProcessLookupError:
+                continue
+            if len(masks) >= 16 and os.sched_getaffinity(process.pid) == selected:
+                break
+            time.sleep(0.02)
+        assert len(masks) >= 16, "worker did not create its 16-thread OpenBLAS pool"
+        assert all(mask <= selected for mask in masks), f"worker thread masks escaped: {masks}"
+        print(
+            f"CPU_SPAWN_AFFINITY threads={len(masks)} "
+            f"within_selected={sum(mask <= selected for mask in masks)} "
+            f"exact_selected={sum(mask == selected for mask in masks)} "
+            f"selected={sorted(selected)}"
+        )
+        assert os.sched_getaffinity(0) == original_affinity
+        assert [
+            os.environ[name]
+            for name in ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS")
+        ] == ["7"] * 3
+
+    monkeypatch.setattr(runner.mp, "get_context", lambda method: ObservedContext())
+    monkeypatch.setattr(runner, "_check_frozen_hardware", inspect_before_dispatch)
+    runner._cpu_phase(jobs, config, data, output, True, False, None)
+    assert os.sched_getaffinity(0) == original_affinity
+    assert [
+        os.environ[name] for name in ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS")
+    ] == ["7"] * 3
+    attempt = output / jobs[0].run_id / "attempt-0001"
+    assert json.loads((attempt / "status.json").read_text())["status"] == "success"
+    timing = json.loads((attempt / "metrics.json").read_text())["timing"]
+    pools = timing["metadata"]["evaluator_threads"]["threadpools"]
+    assert any(pool["internal_api"] == "openblas" and pool["num_threads"] == 16 for pool in pools)
+
+
+def test_cpu_spawn_start_exception_restores_parent_affinity_and_thread_env(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import os
+    import queue
+    from types import SimpleNamespace
+
+    from project_module.e_means import runner
+
+    original_affinity = os.sched_getaffinity(0)
+    if len(original_affinity) < 16:
+        pytest.skip("the 16-core CPU profile is unavailable")
+    selected = set(sorted(original_affinity)[:16])
+    for name in ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS"):
+        monkeypatch.setenv(name, "7")
+    config, data, output = _prepare(tmp_path)
+    resources = config.resources.model_copy(
+        update={"cpu_threads": 16, "cpu_affinity": sorted(selected)}
+    )
+    config = config.model_copy(update={"resources": resources})
+    jobs = runner.prepare_jobs(config, data, output)[:1]
+    observed: dict[str, object] = {}
+
+    class FailedProcess:
+        def start(self) -> None:
+            observed["affinity"] = os.sched_getaffinity(0)
+            observed["threads"] = [
+                os.environ[name]
+                for name in ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS")
+            ]
+            raise RuntimeError("intentional spawn failure")
+
+    context = SimpleNamespace(Queue=queue.Queue, Process=lambda *args, **kwargs: FailedProcess())
+    monkeypatch.setattr(runner.mp, "get_context", lambda method: context)
+    with pytest.raises(RuntimeError, match="intentional spawn failure"):
+        runner._cpu_phase(jobs, config, data, output, True, False, None)
+    assert observed == {"affinity": selected, "threads": ["16"] * 3}
+    assert os.sched_getaffinity(0) == original_affinity
+    assert [
+        os.environ[name] for name in ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS")
+    ] == ["7"] * 3

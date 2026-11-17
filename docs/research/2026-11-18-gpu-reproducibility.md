@@ -76,6 +76,14 @@ workspace・deterministic・graph autoの診断warm train中央値はstockの約
 
 既存の通常181 CPU test、明示10 GPU test、format/type/lintの結果はprofile導入前sourceの証拠であり、profile sourceでの199 CPU / 10 GPU検証とは区別する。準備済み全22条件coverageのGPU実行、8 GPU/S0・大形状再資格、cohort干渉判定、主test前gateはいずれもpendingである。
 
+## CPU実行資源の起動監査
+
+本評価前に別の資源監査を行い、CPU workerの主threadをspawn後に固定するだけでは、NumPy import時に既に作られたOpenBLAS threadへ制限が及ばないことを確認した。実workerの修正前は主threadだけCPU0–15、残る15 threadはCPU0–79を使える状態だった。Linuxのaffinityはthread単位で、子へ継承されるため、worker起動前に親の呼出threadを一時的にCPU0–15へ制限し、起動後に親を復元する修正を加えた。[Linux sched_setaffinity仕様](https://man7.org/linux/man-pages/man2/sched_setaffinity.2.html)
+
+実spawnの回帰試験では全16 threadがCPU0–15を継承し、実trialのOpenBLASも16 threadだった。正常時と起動例外時の双方で、親の元affinityと3種のthread数環境変数を復元した。GPU経路・数学・profile設定は変更していない。各runの主thread affinity記録は維持し、固定ライブラリ下での全thread継承はこの起動試験で確認する。
+
+発見時点で正式CPU計時・主testは未開始。先行GPU coverageは6条件・12 successを工程証拠として保全し、実行中CLIを終えてからsourceを修正した。source identityが変わるため、全22条件coverageは新しいfreeze commitと新rootからやり直す。途中の旧rootを完了扱いしたり、異なるsourceの台帳へresumeしたりしない。
+
 ## 主test前に固定する限定感度調査
 
 stockとの違いは、主曲線へ混ぜず、S0とarxiv R0、非主seed103–107、両GPU手法T8/I10の固定点で記述する。stockは各5反復、deterministicは各3反復とし、合計160 run。同seed・同条件では同じ物理GPU・input・初期中心を使い、profileごとにfresh processで実行する。順序はseed103/105/107がstock→deterministic、104/106が逆順（5組なので3対2）と事前固定する。結果を見ても主profileを選び直さない。

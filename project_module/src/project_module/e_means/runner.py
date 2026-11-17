@@ -1460,16 +1460,27 @@ def _cpu_phase(
         )
         names = ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS")
         previous = {name: os.environ.get(name) for name in names}
+        affinity = (
+            os.sched_getaffinity(0)
+            if config.resources.cpu_affinity and hasattr(os, "sched_getaffinity")
+            else None
+        )
         try:
             for name in names:
                 os.environ[name] = str(config.resources.cpu_threads)
+            if affinity is not None:
+                os.sched_setaffinity(0, set(config.resources.cpu_affinity))
             process.start()
         finally:
-            for name, value in previous.items():
-                if value is None:
-                    os.environ.pop(name, None)
-                else:
-                    os.environ[name] = value
+            try:
+                if affinity is not None:
+                    os.sched_setaffinity(0, affinity)
+            finally:
+                for name, value in previous.items():
+                    if value is None:
+                        os.environ.pop(name, None)
+                    else:
+                        os.environ[name] = value
         return process, requests
 
     process, requests = start()

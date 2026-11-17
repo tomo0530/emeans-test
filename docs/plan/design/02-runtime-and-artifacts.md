@@ -38,6 +38,8 @@ docs/report/                     # 日本語の検証報告、共有用の図
 
 外部Faissの処理をadapterから呼ぶ。e-means本体を再実装しない。Torch Lloydだけは数値検証可能な対照loopを作り、上流native assignmentを共用する。上流helperが使えなければ別kernelへ黙って替えず機構比較を停止する。汎用registry/DB/サービスは作らず明示したmethod mappingで足りる。
 
+CPUのaffinityはworkerをspawnする前に親の呼出threadへ一時適用し、import時のOpenBLAS補助threadにも継承させる。起動の正常・例外時とも親affinityとthread数環境変数を復元し、phase間のhardware fingerprintは変えない。実workerの全threadを確認した起動試験を資源保証の証拠とする。
+
 ## 公開契約
 
 配列はC-contiguousな2次元float32、有限値、dimension/k/件数を境界で検証する。以下のnp.ndarrayはruntime表記であり、Python注釈は `npt.NDArray[np.float32]` / `npt.NDArray[np.int64]` とする。型の詳細はcontracts.pyへまとめ、runnerとadapterで別のschemaを作らない。研究用の関数境界を採用し、production DS-to-ENG用BaseInvokableを全関数へ被せない。[配下の規則](../../../project_module/AGENTS.md)

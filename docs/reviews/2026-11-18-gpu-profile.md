@@ -22,3 +22,14 @@ Opusの非blocking注記は文書化した。coverageではsuccess以外があ�
 全22条件seed100最大予算coverage、8GPU fresh3のS0/R0/大形状再資格、5%干渉判定、固定160 runのstock感度、正式pilotは未実施。これらを揃えた別のpre-test protocol gateが必要である。主22条件・6手法・10 seed・9,520 timing runの完了を先取りしない。
 
 詳細判断は[再現性profile記録](../research/2026-11-18-gpu-reproducibility.md)。ローカル証拠は `.superpowers/sdd/2026-11-17-e-means-implementation-plan/profile-*` に保持する。
+
+## CPU起動affinityの追補ゲート
+
+比較元 `1e36ee9953474b9efdccd43e9fb9b2f38b740d9a`。正式CPU計時の前に、spawn後の主thread pinではimport済みOpenBLAS補助threadを制限できない実測不備を確認した。修正は`_cpu_phase.start`の起動前mask適用と親の復元だけで、他のrunner定義・GPU経路は同一である。
+
+- GPT-6.1 Sol xhigh: **APPROVED**。独立2回帰試験で全16 threadのCPU0–15継承と正常・例外時の復元を再確認。
+- Claude Opus xhigh（実応答 `claude-opus-5-5`）: **APPROVED**。提示diff・証拠に基づく判断で、再テストしたとは扱わない。最初の300秒timeout・空回答は不採用。絞った再試行はexit0/result-success/nonerror/nonempty/denialsなし、31,399 ms。
+
+親の全体検証は201 PASS / GPU10 deselected、format83 files / mypy29 source / ruff PASS。runner対象55件もPASS。実spawnは修正前1 threadのみCPU0–15・残り15がCPU0–79、修正後16/16がCPU0–15だった。実trialのOpenBLAS16と、正常・起動例外時の親mask/env復元を確認した。GPU専用10件は変更のないGPU経路に対する既存証拠であり、今回のCPU差分で新たに実行したとは数えない。
+
+旧GPU coverage6条件・12 successは工程証拠として保持し、新freezeの新rootで全22条件から再実行する。resource_trackerが起動時maskを継承しても待機主体であること、Linux以外は今回の資源契約の対象外であることはOpusのminor注記として記録する。承認範囲はcommitとpilot/preflightまでで、本評価開始の別protocol gateは維持する。
