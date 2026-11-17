@@ -1,0 +1,123 @@
+name: Dockerfile Lint
+
+on:
+  workflow_call:
+    inputs:
+      run_mode:
+        description: "Run mode: changed, all, or target"
+        required: false
+        type: string
+        default: "all"
+      targets:
+        description: "Comma-separated list of Dockerfile paths (used when run_mode is target)"
+        required: false
+        type: string
+        default: ""
+  workflow_dispatch:
+    inputs:
+      run_mode:
+        description: "Run mode"
+        required: true
+        type: choice
+        options:
+          - all
+          - target
+        default: "all"
+      targets:
+        description: "Comma-separated list of Dockerfile paths (used when run_mode is target)"
+        required: false
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  resolve_dockerfiles:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      dockerfiles: ${{ steps.resolve.outputs.dockerfiles }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Detect changed Dockerfiles
+        if: inputs.run_mode == 'changed'
+        uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
+        id: filter
+        with:
+          list-files: json
+          filters: |
+            changed:
+              - "**/Dockerfile"
+              - "**/Dockerfile.*"
+              - "**/*.Dockerfile"
+
+      - name: Resolve Dockerfiles
+        id: resolve
+        env:
+          RUN_MODE: ${{ inputs.run_mode }}
+          TARGETS_INPUT: ${{ inputs.targets }}
+          CHANGED_FILES: ${{ steps.filter.outputs.changed_files }}
+        run: |
+          if [ "$RUN_MODE" = "target" ]; then
+            FILES=""
+            IFS=',' read -ra ITEMS <<< "$TARGETS_INPUT"
+            for item in "${ITEMS[@]}"; do
+              trimmed=$(echo "$item" | xargs)
+              if [ -z "$trimmed" ]; then
+                continue
+              fi
+              if [ ! -f "$trimmed" ]; then
+                echo "::warning::Skipping '$trimmed': file does not exist"
+                continue
+              fi
+              FILES="$FILES$trimmed"$'\n'
+            done
+            DOCKERFILES=$(printf '%s' "$FILES" | jq -R . | jq -cs .)
+            if [ "$DOCKERFILES" = "[]" ]; then
+              echo "::error::No valid Dockerfiles resolved from targets: '$TARGETS_INPUT'"
+              exit 1
+            fi
+
+          elif [ "$RUN_MODE" = "changed" ]; then
+            DOCKERFILES="${CHANGED_FILES:-[]}"
+
+          else
+            DOCKERFILES=$(find . \( -name Dockerfile -o -name 'Dockerfile.*' -o -name '*.Dockerfile' \) -type f | sed 's|^\./||' | jq -R . | jq -cs .)
+            if [ "$DOCKERFILES" = "[]" ]; then
+              echo "::warning::No Dockerfiles found in the repository"
+            fi
+          fi
+
+          echo "Dockerfiles to lint: $DOCKERFILES"
+          echo "dockerfiles=$DOCKERFILES" >> $GITHUB_OUTPUT
+
+  docker_lint:
+    needs: resolve_dockerfiles
+    if: needs.resolve_dockerfiles.outputs.dockerfiles != '[]'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        dockerfile: ${{ fromJSON(needs.resolve_dockerfiles.outputs.dockerfiles) }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Lint Dockerfile
+        uses: hadolint/hadolint-action@2332a7b74a6de0dda2e2221d575162eba76ba5e5 # v3.3.0
+        with:
+          dockerfile: ${{ matrix.dockerfile }}
+          ignore: "DL3006,DL3008,DL3013"

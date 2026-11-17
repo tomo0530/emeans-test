@@ -1,0 +1,197 @@
+name: Issue/PR Metrics
+
+on:
+  # schedule:
+  #   # Every Monday 00:10 UTC
+  #   - cron: "10 0 * * 1"
+  workflow_dispatch:
+    inputs:
+      repo:
+        description: "GitHub repository (owner/name). Default: this repo."
+        required: false
+        type: string
+      days:
+        description: "Lookback window in days (1..365)"
+        required: false
+        default: "7"
+        type: string
+      format:
+        description: "Output format (md/table/json)"
+        required: false
+        default: "md"
+        type: choice
+        options: ["md", "table", "json"]
+      exclude_labels:
+        description: "Comma-separated exclude labels (safe chars only)"
+        required: false
+        default: ""
+        type: string
+      limit:
+        description: "Max items fetched per query (1..1000)"
+        required: false
+        default: "1000"
+        type: string
+
+# Keep permissions minimal (job-level is also fine; repo-level is OK if you prefer)
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+
+concurrency:
+  group: issue-pr-metrics-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  metrics:
+    runs-on: ubuntu-slim
+    permissions:
+      contents: read
+      issues: read
+      pull-requests: read
+
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7.6.0
+        with:
+          version: "0.13.5"
+
+      - name: Setup python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: "3.12"
+
+      - name: Determine parameters (validated)
+        id: params
+        run: |
+          set -euo pipefail
+
+          REPO_INPUT="${{ github.event.inputs.repo }}"
+          DAYS_INPUT="${{ github.event.inputs.days }}"
+          FORMAT_INPUT="${{ github.event.inputs.format }}"
+          EXCL_INPUT="${{ github.event.inputs.exclude_labels }}"
+          LIMIT_INPUT="${{ github.event.inputs.limit }}"
+
+          # Defaults for schedule runs (github.event.inputs.* is empty)
+          REPO="${REPO_INPUT:-${GITHUB_REPOSITORY}}"
+          DAYS="${DAYS_INPUT:-7}"
+          FORMAT="${FORMAT_INPUT:-md}"
+          EXCL="${EXCL_INPUT:-}"
+          LIMIT="${LIMIT_INPUT:-1000}"
+
+          # ---- Validation / Sanitization ----
+          # Reject control chars / newlines early (prevents GITHUB_OUTPUT injection)
+          for vname in REPO DAYS FORMAT EXCL LIMIT; do
+            v="${!vname}"
+            if printf '%s' "$v" | LC_ALL=C grep -q '[[:cntrl:]]'; then
+              echo "Invalid $vname: contains control characters" >&2
+              exit 1
+            fi
+          done
+
+          # repo: owner/name with safe chars
+          if [[ ! "$REPO" =~ ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ ]]; then
+            echo "Invalid repo: $REPO" >&2
+            exit 1
+          fi
+
+          # days: 1..365
+          if [[ ! "$DAYS" =~ ^[0-9]+$ ]] || (( DAYS < 1 || DAYS > 365 )); then
+            echo "Invalid days: $DAYS (expected 1..365)" >&2
+            exit 1
+          fi
+
+          # limit: 1..1000
+          if [[ ! "$LIMIT" =~ ^[0-9]+$ ]] || (( LIMIT < 1 || LIMIT > 1000 )); then
+            echo "Invalid limit: $LIMIT (expected 1..1000)" >&2
+            exit 1
+          fi
+
+          # format: allowlist
+          case "$FORMAT" in
+            md|table|json) ;;
+            *) echo "Invalid format: $FORMAT" >&2; exit 1 ;;
+          esac
+
+          # exclude_labels: comma-separated safe tokens; cap length
+          if [[ -n "$EXCL" ]]; then
+            if (( ${#EXCL} > 200 )); then
+              echo "exclude_labels too long (max 200 chars)" >&2
+              exit 1
+            fi
+
+            re_excl='^[A-Za-z0-9_.\/ -]+(,[A-Za-z0-9_.\/ -]+)*$'
+            if [[ ! "$EXCL" =~ $re_excl ]]; then
+              echo "Invalid exclude_labels: $EXCL" >&2
+              exit 1
+            fi
+          fi
+
+          # ---- Safe write to GITHUB_OUTPUT (printf avoids accidental format issues) ----
+          {
+            printf 'repo=%s\n' "$REPO"
+            printf 'days=%s\n' "$DAYS"
+            printf 'format=%s\n' "$FORMAT"
+            printf 'exclude_labels=%s\n' "$EXCL"
+            printf 'limit=%s\n' "$LIMIT"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Run metrics script
+        id: run
+        run: |
+          set -euo pipefail
+
+          ARGS=(
+            --repo "${{ steps.params.outputs.repo }}"
+            --days "${{ steps.params.outputs.days }}"
+            --format "${{ steps.params.outputs.format }}"
+            --limit "${{ steps.params.outputs.limit }}"
+          )
+
+          if [[ -n "${{ steps.params.outputs.exclude_labels }}" ]]; then
+            ARGS+=( --exclude-labels "${{ steps.params.outputs.exclude_labels }}" )
+          fi
+
+          echo "Running: uv run scripts/issue_pr_metrics.py ${ARGS[*]}"
+          # Add a hard timeout to avoid hung jobs
+          timeout 8m uv run scripts/issue_pr_metrics.py "${ARGS[@]}" | tee metrics.out
+
+      - name: Write to Job Summary
+        if: always()
+        run: |
+          set -euo pipefail
+          {
+            echo "## Issue/PR Metrics"
+            echo
+            echo "- Repo: \`${{ steps.params.outputs.repo }}\`"
+            echo "- Days: \`${{ steps.params.outputs.days }}\`"
+            echo "- Format: \`${{ steps.params.outputs.format }}\`"
+            echo "- Exclude labels: \`${{ steps.params.outputs.exclude_labels || 'none' }}\`"
+            echo "- Limit: \`${{ steps.params.outputs.limit }}\`"
+            echo
+            echo '```'
+            # Avoid summary breakage if output contains ``` by stripping it (defensive)
+            sed 's/```/` ` `/' metrics.out || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload output as artifact
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: issue-pr-metrics
+          path: metrics.out
+          if-no-files-found: warn

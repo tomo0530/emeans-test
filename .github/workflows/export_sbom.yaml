@@ -1,0 +1,55 @@
+name: Export SBOM
+
+# See https://app.notion.com/p/abejainc/SBOM-Export-Workflow-3836fbf10b72809cae38f5a91ac15ec3
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+  # id-token: write is required for AWS OIDC (AssumeRoleWithWebIdentity)
+  # in the reusable workflow.
+  id-token: write
+
+jobs:
+  # Python dependencies SBOM (uv workspace).
+  # The root pyproject.toml depends on all workspace members, so a single
+  # `uv export` at the repository root covers the whole workspace.
+  export-python-sbom:
+    uses: abeja-inc/sdd-security-actions/.github/workflows/reusable-export-sbom-uv.yml@main
+    with:
+      project_name: ${{ github.event.repository.name }}-python
+      # version is omitted so tag runs automatically use github.ref_name.
+      latest: true
+
+  # Dev-container (CPU) image SBOM.
+  #
+  # The reusable workflow builds the image with a plain `docker build` using
+  # the ARG defaults in context/Dockerfile. It cannot reuse
+  # `make docker-build-cpu`: a job-level `uses:` runs on its own runner, so
+  # images built in another job are not visible, and the reusable workflow
+  # has no hook for custom build commands.
+  #
+  # This still scans the same image developers run, because every
+  # package-affecting build arg in context/cpu/docker-compose.yml
+  # (BASE_IMAGE, UV_VERSION, PYTHON_VERSION, WITH_* toggles, tool versions)
+  # matches the ARG defaults in context/Dockerfile. Keep those two files in
+  # sync (see the notes in both) or this SBOM will drift from the real image.
+  # User-specific args (USERNAME, USER_UID, ...) do not affect packages.
+  #
+  # The GPU image (context/gpu/docker-compose.yml) is intentionally not
+  # covered for now: it differs only in BASE_IMAGE (nvidia/cuda), but
+  # building it in CI is heavy and would duplicate the BASE_IMAGE pin here.
+  export-image-sbom-cpu:
+    uses: abeja-inc/sdd-security-actions/.github/workflows/reusable-export-sbom-docker-image.yml@main
+    with:
+      project_name: ${{ github.event.repository.name }}-image-cpu
+      dockerfile: context/Dockerfile
+      build_context: context
+      # version is omitted so tag runs automatically use github.ref_name.
+      latest: true

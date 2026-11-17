@@ -1,0 +1,44 @@
+# =============================================================================
+# Gitleaks Local Configuration for dsg-project-template
+# =============================================================================
+# This file extends .gitleaks.toml with directory path exclusions for local
+# scanning (gitleaks dir). It is used by "make secret-scan".
+#
+# gitleaks dir does not respect .gitignore, so generated/cache/data directories
+# are explicitly excluded here to avoid false positives and slow scans.
+#
+# IMPORTANT: These path exclusions are intentionally separated from .gitleaks.toml
+# (used by CI) to ensure that secrets accidentally committed to these directories
+# are still detected by CI (gitleaks git).
+#
+# When adding new patterns to .gitignore, update this list as needed.
+# =============================================================================
+
+title = "dsg-project-template gitleaks local config"
+
+[extend]
+path = ".gitleaks.toml"
+
+[[allowlists]]
+  description = "Generated/cache directories (not covered by .gitignore in gitleaks dir mode)"
+  paths = [
+    '''(^|[\\/])\.git([\\/]|$)''',
+    '''(^|[\\/])\.venv([\\/]|$)''',
+    '''(^|[\\/])\.venv_container([\\/]|$)''',
+    '''(^|[\\/])\.cache([\\/]|$)''',
+    '''(^|[\\/])\.mypy_cache([\\/]|$)''',
+    '''(^|[\\/])\.pytest_cache([\\/]|$)''',
+    '''(^|[\\/])\.ruff_cache([\\/]|$)''',
+    '''(^|[\\/])__pycache__([\\/]|$)''',
+    '''(^|[\\/])\.tox([\\/]|$)''',
+    '''(^|[\\/])\.nox([\\/]|$)''',
+    '''(^|[\\/])\.hypothesis([\\/]|$)''',
+    '''(^|[\\/])\.ipynb_checkpoints([\\/]|$)''',
+    '''(^|[\\/])\.eggs([\\/]|$)''',
+    '''(^|[\\/])[^\\/]+\.egg-info([\\/]|$)''',
+    '''(^|[\\/])build([\\/]|$)''',
+    '''(^|[\\/])dist([\\/]|$)''',
+    '''(^|[\\/])logs([\\/]|$)''',
+    '''(^|[\\/])experimentation[\\/]dataset([\\/]|$)''',
+    '''(^|[\\/])experimentation[\\/]outputs([\\/]|$)''',
+  ]

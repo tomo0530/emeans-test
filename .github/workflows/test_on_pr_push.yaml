@@ -1,0 +1,13 @@
+name: test (PR/Push)
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+  push:
+    branches: [main]
+
+jobs:
+  python_test:
+    uses: ./.github/workflows/python_test_workflow_call_dispatch.yaml
+    with:
+      run_mode: changed

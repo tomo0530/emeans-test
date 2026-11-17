@@ -1,0 +1,89 @@
+services:
+  dev:
+    image: ${PROJECT}:${SANITIZED_USER}_${USER_UID}
+    container_name: ${PROJECT}_${SANITIZED_USER}_${USER_UID}
+
+    build:
+      context: ../../context/
+      dockerfile: Dockerfile
+      args:
+        BASE_IMAGE: nvidia/cuda:12.8.1-cudnn-runtime-ubuntu24.04@sha256:ac55d124da4882b497f732d8dfd9a702d5447a5f29d08d56da6f64f0a1eb34bc
+        # BASE_IMAGE: nvidia/cuda:12.8.1-cudnn-devel-ubuntu24.04@sha256:24c8e3581ea6330038b0d374920721983312627f8adbfcf390bdb4b399d280ed
+          # Note: format: <base_image><@sha256:<base_image_digest>>
+          # See https://hub.docker.com/r/nvidia/cuda/tags to find the digest of the CUDA base image corresponding to the BASE_IMAGE.
+        USERNAME: ${USER}
+        USER_UID: ${USER_UID}
+        USER_GID: ${USER_GID}
+        USER_GROUP_IDS: ${USER_GROUP_IDS}
+        PYTHON_VERSION: 3.12.15
+        UV_VERSION: 0.13.5@sha256:32a7bb39b496babbd997b0a39a4d66c126bdaf5661b302bf6f06abda8deca6ff
+          # Note: format: <uv_version><@sha256:<uv_image_digest>>
+          # See https://github.com/astral-sh/uv/pkgs/container/uv/versions to find the digest of the uv image corresponding to the UV_VERSION.
+        WITH_GH: ${WITH_GH:-false}
+        GH_VERSION: 2.98.0  # If you change this, also update the following corresponding expected SHA256 values below.
+        GH_EXPECTED_SHA256_AMD64: f65a3fa2fa0eb2e97c445ee3f5e087a40aae03b64847f45a8f13805e504535d6  # v2.98.0 # See https://github.com/cli/cli/releases
+        GH_EXPECTED_SHA256_ARM64: bbc4ac7964c2a091fd555cd1758d10a7cfcfdc472e405f0b0fb958f05d535cb6  # v2.98.0 # See https://github.com/cli/cli/releases
+        WITH_NODE: ${WITH_NODE:-false}
+        NODE_VERSION: 24.22.1  # If you change this, also update the following corresponding expected SHA256 values below.
+        NODE_EXPECTED_SHA256_AMD64: 6c172a9ab6718f7b801fb5a7bd486af2ee5e32758086a04b84fcce2aa77095e6  # 24.22.1 # See https://nodejs.org/dist/v<NODE_VERSION>/SHASUMS256.txt
+        NODE_EXPECTED_SHA256_ARM64: dbabf7a1cbf947e6059ffad2c27b80041db97dea1e553b62afdee7f13fca336e  # 24.22.1 # See https://nodejs.org/dist/v<NODE_VERSION>/SHASUMS256.txt
+        WITH_GITLEAKS: ${WITH_GITLEAKS:-true}
+        GITLEAKS_VERSION: 8.30.0  # If you change this, also update the following corresponding expected SHA256 values below.
+        GITLEAKS_EXPECTED_SHA256_AMD64: 79a3ab579b53f71efd634f3aaf7e04a0fa0cf206b7ed434638d1547a2470a66e  # v8.30.0 # See https://github.com/gitleaks/gitleaks/releases
+        GITLEAKS_EXPECTED_SHA256_ARM64: b4cbbb6ddf7d1b2a603088cd03a4e3f7ce48ee7fd449b51f7de6ee2906f5fa2f  # v8.30.0 # See https://github.com/gitleaks/gitleaks/releases
+        WITH_OPENCV: ${WITH_OPENCV:-false}
+        WITH_VIM: ${WITH_VIM:-false}
+        WITH_LASTPASS: ${WITH_LASTPASS:-false}
+        LASTPASS_CLI_VERSION: feaeacf1549da07a646505cc531e63d6dfdc0f3f  # v1.6.1
+          # Note: format: <lastpass_cli_version: tag or commit_hash (commit hash is recommended for immutability)>
+          # See https://github.com/lastpass/lastpass-cli/releases
+        
+
+    volumes:
+      - type: bind
+        source: ${PARENT_DIR}/${PROJECT_DIR}
+        target: /home/${USER}/${PROJECT_DIR}
+      - type: bind
+        source: ${HOME}/.gitconfig
+        target: /home/${USER}/.gitconfig
+      # NOTE: Uncomment to enable ssh-agent forwarding (requires SSH_AUTH_SOCK).
+      # - type: bind
+      #   source: ${SSH_AUTH_SOCK}
+      #   target: /ssh-agent
+      # NOTE: Uncomment only when you need ~/.ssh inside the container.
+      # - type: bind
+      #   source: ${HOME}/.ssh
+      #   target: /home/${USER}/.ssh
+
+    # ports: 
+    #   - '8888:8888'
+
+    working_dir: /home/${USER}/${PROJECT_DIR}
+    tty: true
+
+    # runtime: nvidia
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ gpu ]
+
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=utility,compute
+      - UV_PROJECT_ENVIRONMENT=/home/${USER}/${PROJECT_DIR}/.venv_container
+      - UV_CACHE_DIR=/home/${USER}/${PROJECT_DIR}/.cache/uv
+      - HF_HOME=/home/${USER}/${PROJECT_DIR}/.cache/huggingface
+      - WANDB_CACHE_DIR=/home/${USER}/${PROJECT_DIR}/.cache/wandb
+      - TORCH_HOME=/home/${USER}/${PROJECT_DIR}/.cache/torch
+      # NOTE: Must match the bind mount above when enabling ssh-agent forwarding.
+      # - SSH_AUTH_SOCK=/ssh-agent
+      
+    # NOTE: Set to "always" or "unless-stopped" only for containers that must persist across reboots.
+    restart: "no"
+    shm_size: '16gb'
+    command: /bin/bash
+    ulimits:
+      memlock: -1

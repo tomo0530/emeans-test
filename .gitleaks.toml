@@ -1,0 +1,97 @@
+# =============================================================================
+# Gitleaks Configuration for dsg-project-template
+# =============================================================================
+# Uses Gitleaks default rules (AWS keys, GCP tokens, Slack tokens, etc.) as-is.
+# Only project-specific false positives should be excluded here.
+#
+# This file is used by CI (gitleaks git) and should NOT contain directory path
+# exclusions. For local scanning (gitleaks dir), use .gitleaks-local.toml instead.
+#
+# How to handle false positives (recommended order):
+#   1. gitleaks:allow  -- inline comment at end of line (most specific)
+#      e.g.: api_key = "dummy-key-for-test"  # gitleaks:allow
+#   2. .gitleaks.toml  -- structural/recurring false positives (this file)
+#   3. .gitleaksignore -- fingerprint-based exclusion (last resort)
+#      * fingerprints may be invalidated by squash merge
+#      * fingerprints may differ between CI (gitleaks git) and local (gitleaks dir)
+#
+# See: https://github.com/gitleaks/gitleaks
+# =============================================================================
+
+title = "dsg-project-template gitleaks config"
+minVersion = "8.25.0"
+
+[extend]
+useDefault = true
+
+# =============================================================================
+# Allowlist
+# =============================================================================
+# Only add structural/recurring false positives here.
+# For individual false positives, use gitleaks:allow inline comments.
+#
+# IMPORTANT: Do NOT add directory path exclusions here.
+# Directory exclusions belong in .gitleaks-local.toml (used by make secret-scan).
+# Paths added here would also suppress CI detection of secrets committed to
+# those directories, creating a security gap.
+
+# =============================================================================
+# Sample allowlists (commented out)
+# Uncomment and edit as needed for your project.
+# =============================================================================
+
+# --- Sample 0 (recommended): Exclude binary image files ---
+# Random byte sequences in binary files may trigger false positives.
+#
+# [[allowlists]]
+#   description = "Binary and image files"
+#   paths = [
+#     '''(?i)\.(png|jpe?g|gif|svg|ico|woff2?|ttf|eot)$''',
+#   ]
+
+# --- Sample 1: Exclude dummy values in test fixtures ---
+# Use when test code contains intentional dummy tokens.
+# condition = "AND" means both paths and regexes must match.
+#
+# [[allowlists]]
+#   description = "Dummy tokens in test fixtures"
+#   condition = "AND"
+#   paths = [
+#     '''tests/fixtures/''',
+#     '''tests/data/''',
+#   ]
+#   regexTarget = "match"
+#   regexes = [
+#     '''(?i)(dummy|example|sample|changeme|fake|test)''',
+#   ]
+
+# --- Sample 2: Exclude specific files from scanning ---
+# For auto-generated files or lock files that don't need scanning.
+#
+# [[allowlists]]
+#   description = "Auto-generated files"
+#   paths = [
+#     '''uv\.lock$''',
+#     '''package-lock\.json$''',
+#   ]
+
+# --- Sample 3: Exclude specific rules ---
+# Target specific detection rules (e.g., generic-api-key) by rule ID.
+#
+# [[allowlists]]
+#   description = "Known safe patterns for specific rules"
+#   targetRules = ["generic-api-key"]
+#   regexTarget = "match"
+#   regexes = [
+#     '''ABEJA_API_KEY_PLACEHOLDER''',
+#   ]
+
+# --- Sample 4: Exclude specific commits ---
+# For historical commits with secrets that have already been rotated.
+# Typically not needed for new projects.
+#
+# [[allowlists]]
+#   description = "Resolved historical commits"
+#   commits = [
+#     "full-40-char-commit-sha-here",
+#   ]

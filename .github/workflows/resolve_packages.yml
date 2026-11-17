@@ -1,0 +1,147 @@
+# Ref. https://github.com/abeja-inc/abeja-toolkit/pull/122
+
+on:
+  workflow_call:
+    inputs:
+      run_mode:
+        description: "Run mode: changed, all, or target"
+        required: false
+        type: string
+        default: "changed"
+      targets:
+        description: "Comma-separated list of package paths (used when run_mode is target)"
+        required: false
+        type: string
+        default: ""
+    outputs:
+      packages:
+        description: "List of packages"
+        value: ${{ jobs.find_packages.outputs.packages }}
+
+permissions:
+  contents: read
+
+jobs:
+  find_packages:
+    runs-on: ubuntu-slim
+    outputs:
+      packages: ${{ steps.resolve.outputs.packages }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Resolve packages
+        id: resolve
+        env:
+          RUN_MODE: ${{ inputs.run_mode }}
+          TARGETS_INPUT: ${{ inputs.targets }}
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GITHUB_EVENT_PULL_REQUEST_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          GITHUB_EVENT_PULL_REQUEST_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_EVENT_BEFORE: ${{ github.event.before }}
+          GITHUB_EVENT_FORCED: ${{ github.event.forced }}
+        run: |
+          # List all directories containing pyproject.toml (excluding root)
+          list_all_packages() {
+            local packages dir
+            packages=""
+            while IFS= read -r toml; do
+              dir=$(dirname "$toml")
+              if [ "$dir" != "." ]; then
+                packages="$packages '$dir'"
+              fi
+            done < <(find . -name pyproject.toml -not -path ./pyproject.toml | sed 's|^\./||')
+            echo "$packages" | xargs
+          }
+
+          if [ "$RUN_MODE" = "all" ]; then
+            PACKAGES=$(list_all_packages)
+            if [ -z "$PACKAGES" ]; then
+              echo "::warning::No packages found in the repository"
+            fi
+            echo "packages=$PACKAGES" >> $GITHUB_OUTPUT
+
+          elif [ "$RUN_MODE" = "target" ]; then
+            # Convert comma-separated targets to space-separated list
+            PACKAGES=""
+            IFS=',' read -ra DIRS <<< "$TARGETS_INPUT"
+            for dir in "${DIRS[@]}"; do
+              trimmed=$(echo "$dir" | xargs)
+              if [ -z "$trimmed" ]; then
+                continue
+              fi
+              if [ ! -d "$trimmed" ]; then
+                echo "::warning::Skipping '$trimmed': directory does not exist"
+                continue
+              fi
+              if [ ! -f "$trimmed/pyproject.toml" ]; then
+                echo "::warning::Skipping '$trimmed': pyproject.toml not found"
+                continue
+              fi
+              PACKAGES="$PACKAGES '$trimmed'"
+            done
+            PACKAGES=$(echo "$PACKAGES" | xargs)
+            if [ -z "$PACKAGES" ]; then
+              echo "::error::No valid packages resolved from targets: '$TARGETS_INPUT'"
+              exit 1
+            fi
+            echo "packages=$PACKAGES" >> $GITHUB_OUTPUT
+
+          elif [ "${GITHUB_EVENT_NAME}" = "push" ] && [ "${GITHUB_EVENT_FORCED}" = "true" ]; then
+            # After a force push the previous tip may be unreachable, so the
+            # changed set cannot be computed; check all packages instead.
+            echo "::warning::Force push detected; falling back to all packages"
+            PACKAGES=$(list_all_packages)
+            echo "packages=$PACKAGES" >> $GITHUB_OUTPUT
+
+          else
+            # changed: find packages with modified Python files
+            if [ "${GITHUB_EVENT_NAME}" = "pull_request" ]; then
+              BASE_SHA="${GITHUB_EVENT_PULL_REQUEST_BASE_SHA}"
+              HEAD_SHA="${GITHUB_EVENT_PULL_REQUEST_HEAD_SHA}"
+            else
+              git fetch origin --depth=2
+              ZERO_SHA="0000000000000000000000000000000000000000"
+              if [ -n "${GITHUB_EVENT_BEFORE}" ] && [ "${GITHUB_EVENT_BEFORE}" != "${ZERO_SHA}" ] \
+                && git rev-parse --verify "${GITHUB_EVENT_BEFORE}^{commit}" >/dev/null 2>&1; then
+                # Previous tip covers every commit in a multi-commit push
+                BASE_SHA="${GITHUB_EVENT_BEFORE}"
+              elif git rev-parse --verify "${GITHUB_SHA}^" >/dev/null 2>&1; then
+                BASE_SHA=$(git rev-parse "${GITHUB_SHA}^")
+              else
+                BASE_SHA=$(git hash-object -t tree /dev/null)
+              fi
+              HEAD_SHA="${GITHUB_SHA}"
+            fi
+
+            echo "Comparing $BASE_SHA...$HEAD_SHA"
+            DIFF_FILES=$(git diff --name-only "$BASE_SHA" "$HEAD_SHA" -- '*.py')
+            echo "Modified Python files:"
+            echo "$DIFF_FILES"
+
+            PACKAGES=""
+            for file in $DIFF_FILES; do
+              dir=$(dirname "$file")
+              package_dir=""
+              while [ "$dir" != "." ] && [ "$dir" != "/" ]; do
+                if [ -f "$dir/pyproject.toml" ]; then
+                  package_dir="$dir"
+                  break
+                fi
+                dir=$(dirname "$dir")
+              done
+              if [ -n "$package_dir" ]; then
+                PACKAGES="$PACKAGES '$package_dir'"
+              fi
+            done
+
+            PACKAGES=$(echo "$PACKAGES" | tr ' ' '\n' | sort -u | tr '\n' ' ' | xargs)
+
+            echo "Changed packages:"
+            echo "$PACKAGES"
+            echo "packages=$PACKAGES" >> $GITHUB_OUTPUT
+          fi

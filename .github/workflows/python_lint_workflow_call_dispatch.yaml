@@ -1,0 +1,79 @@
+name: Python Lint
+
+on:
+  workflow_call:
+    inputs:
+      run_mode:
+        description: "Run mode: changed, all, or target"
+        required: true
+        type: string
+      targets:
+        description: "Comma-separated list of package paths (used when run_mode is target)"
+        required: false
+        type: string
+        default: ""
+  workflow_dispatch:
+    inputs:
+      run_mode:
+        description: "Run mode"
+        required: true
+        type: choice
+        options:
+          - all
+          - target
+      targets:
+        description: "Comma-separated list of package paths (used when run_mode is target)"
+        required: false
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  find_packages:
+    uses: ./.github/workflows/resolve_packages.yml
+    with:
+      run_mode: ${{ inputs.run_mode }}
+      targets: ${{ inputs.targets }}
+
+  run_lint:
+    needs: find_packages
+    if: needs.find_packages.outputs.packages != ''
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7.6.0
+        with:
+          version: "0.13.5"
+
+      - name: Setup python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: "3.12.15"
+
+      - name: Installing dependencies
+        run: |
+          uv sync --all-groups
+
+      - name: Running ruff and mypy
+        env:
+          PACKAGES: ${{ needs.find_packages.outputs.packages }}
+        run: |
+          failures=0
+          for dir in $PACKAGES; do
+            echo "Running Ruff in $dir"
+            uv run ruff check --config ./ruff.toml "$dir" || failures=1
+            echo "Running mypy in $dir"
+            uv run mypy --config-file ./mypy.ini "$dir" || failures=1
+          done
+          exit $failures

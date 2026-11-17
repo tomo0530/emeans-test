@@ -1,0 +1,48 @@
+{
+  "skill_name": "extract-to-toolkit",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "project_module/src/dummy_project_module/utils/gcs.py にGCSのアップロード/ダウンロード処理があるんだけど、これをlibsに切り出したい。ライブラリ名は gcs-client でお願い。",
+      "expected_output": "Skill finds utils/gcs.py during the scan, scores it high (stdlib/third-party-only imports, generic name, imported by 2 other files), presents it as a ranked candidate, confirms the lib name with the user, then creates libs/gcs_client/src/gcs_client/ (underscore directory directly under libs/, not inside libs/abeja-toolkit/; gcs-client is only the distribution name) with gcs.py's contents, deletes the original file, rewrites every importer (pipeline.py, domain/invoice_parser.py) to `from gcs_client import ...`, adds gcs-client to project_module/pyproject.toml, and registers libs/gcs_client in the root pyproject.toml workspace members.",
+      "files": ["evals/fixtures/dummy_project_module/"],
+      "expectations": [
+        "Skill locates project_module/src/dummy_project_module/ as the package root before scanning",
+        "utils/gcs.py appears in the Phase 4 ranked table with a total score of 7 or higher",
+        "Skill explicitly asks the user to choose candidates and a lib name (Phase 4) before making any file changes",
+        "libs/gcs_client/src/gcs_client/ is created (underscore directory directly under libs/, not inside libs/abeja-toolkit/) containing the moved gcs.py logic, plus __init__.py, py.typed, pyproject.toml, and README.md",
+        "The original utils/gcs.py is deleted from project_module/",
+        "Every file that previously imported utils.gcs (pipeline.py, domain/invoice_parser.py) has its import rewritten to reference gcs_client instead",
+        "Root pyproject.toml's [tool.uv.workspace] members gains \"libs/gcs_client\" (underscore directory directly under libs/, not the kebab-case gcs-client)",
+        "project_module/pyproject.toml gains gcs-client (kebab-case distribution name) under [project] dependencies and [tool.uv.sources]"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "project_moduleの中身を見て、共通化できそうな部分がないか教えて。",
+      "expected_output": "Skill scans the whole dummy_project_module tree and reports utils/gcs.py, clients/bq.py, and clients/bq_utils.py as strong candidates (score >= 4). domain/invoice_parser.py may reach the numeric threshold too (it only imports already-extractable modules), but the skill must flag it in the Note column as containing a domain-specific noun (InvoiceEntity / invoice_parser) and therefore risky to extract as-is. pipeline.py should not appear as a candidate. The skill must stop after presenting the table and wait for the user to pick candidates, not extract anything automatically.",
+      "files": ["evals/fixtures/dummy_project_module/"],
+      "expectations": [
+        "Ranked table includes utils/gcs.py, clients/bq.py, and clients/bq_utils.py with score >= 4",
+        "If domain/invoice_parser.py is listed as a candidate, its Note column flags the domain-specific naming (invoice/InvoiceEntity) rather than presenting it as a clean extraction target",
+        "pipeline.py is not listed as a candidate",
+        "Skill does not modify any files in this eval — it stops at Phase 4 and asks the user to select candidates",
+        "Skill notes that clients/bq.py and clients/bq_utils.py are related (bq.py imports bq_utils) so the user can consider grouping them"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "clients/bq.py と clients/bq_utils.py をまとめて bigquery-client として切り出してください。",
+      "expected_output": "Skill groups both files into a single new lib, libs/bigquery_client/src/bigquery_client/ (underscore directory directly under libs/, not inside libs/abeja-toolkit/; bigquery-client is only the distribution name), containing both bq.py and bq_utils.py. The import of bq_utils inside bq.py is rewritten to use the new package name (`from bigquery_client import format_table_ref` or an internal relative import within the new package), not the old dummy_project_module.clients path. Both original files are deleted from project_module/, pipeline.py's import of clients.bq is rewritten to bigquery_client, and both pyproject.toml files are updated.",
+      "files": ["evals/fixtures/dummy_project_module/"],
+      "expectations": [
+        "libs/bigquery_client/src/bigquery_client/ contains both bq.py and bq_utils.py (or their merged/renamed equivalents)",
+        "The import of format_table_ref inside bq.py no longer points at dummy_project_module.clients.bq_utils",
+        "clients/bq.py and clients/bq_utils.py are deleted from project_module/",
+        "pipeline.py's import of run_query is rewritten to `from bigquery_client import run_query`",
+        "Root pyproject.toml's [tool.uv.workspace] members gains \"libs/bigquery_client\" (underscore directory directly under libs/, not the kebab-case bigquery-client)",
+        "project_module/pyproject.toml gains bigquery-client (kebab-case distribution name) under [project] dependencies and [tool.uv.sources]"
+      ]
+    }
+  ]
+}

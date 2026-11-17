@@ -1,0 +1,108 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+zero_sha="0000000000000000000000000000000000000000"
+remote_name="${1:-origin}"
+repo_root="$(git rev-parse --show-toplevel)"
+config_path="${repo_root}/.gitleaks.toml"
+
+collect_commit_list() {
+  local local_commit="$1"
+  local remote_oid="$2"
+  local commit_list_file="$3"
+
+  if [ "${remote_oid}" != "${zero_sha}" ] && git cat-file -e "${remote_oid}^{commit}" 2>/dev/null; then
+    git rev-list --reverse "${remote_oid}..${local_commit}" >"${commit_list_file}"
+    return
+  fi
+
+  git rev-list --reverse "${local_commit}" --not --remotes="${remote_name}" >"${commit_list_file}"
+}
+
+scan_commit() {
+  local commit="$1"
+  local stdout_file
+  local stderr_file
+  local status
+
+  stdout_file="$(mktemp)"
+  stderr_file="$(mktemp)"
+
+  set +e
+  gitleaks git \
+    --config "${config_path}" \
+    --redact \
+    --log-opts="${commit}^!" \
+    >"${stdout_file}" 2>"${stderr_file}"
+  status=$?
+  set -e
+
+  if [ "${status}" -eq 0 ]; then
+    rm -f "${stdout_file}" "${stderr_file}"
+    return
+  fi
+
+  cat "${stdout_file}" "${stderr_file}" >&2
+
+  if grep -qi "leaks found" "${stdout_file}" "${stderr_file}"; then
+    echo "❌ gitleaks detected potential secrets in commit ${commit}. Push blocked." >&2
+    echo "   Reproduce this hook check with:" >&2
+    echo "   gitleaks git --config .gitleaks.toml --redact --log-opts='${commit}^!'" >&2
+    echo "   For a broader working-tree scan, run 'make secret-scan [path]'." >&2
+    echo "   For false positives, follow the allowlist guidance in README." >&2
+  else
+    echo "❌ gitleaks failed to run correctly while scanning commit ${commit}. Push blocked." >&2
+    echo "   Check the gitleaks installation and .gitleaks.toml configuration." >&2
+  fi
+
+  rm -f "${stdout_file}" "${stderr_file}"
+  exit 1
+}
+
+cd "${repo_root}"
+
+if ! command -v gitleaks >/dev/null 2>&1; then
+  echo "❌ gitleaks is required for the pre-push hook." >&2
+  echo "   Install it locally or rebuild the dev image." >&2
+  exit 1
+fi
+
+if [ ! -f "${config_path}" ]; then
+  echo "❌ Gitleaks config file not found: ${config_path}" >&2
+  exit 1
+fi
+
+while read -r local_ref local_oid remote_ref remote_oid; do
+  if [ -z "${local_ref:-}" ] || [ "${local_oid}" = "${zero_sha}" ]; then
+    continue
+  fi
+
+  if ! local_commit="$(git rev-parse --verify "${local_oid}^{commit}" 2>/dev/null)"; then
+    echo "ℹ️  Skipping non-commit push target: ${local_ref}" >&2
+    continue
+  fi
+
+  commit_list_file="$(mktemp)"
+  collect_commit_list "${local_commit}" "${remote_oid}" "${commit_list_file}"
+
+  has_commit=0
+  while IFS= read -r commit; do
+    if [ -z "${commit}" ]; then
+      continue
+    fi
+
+    if [ "${has_commit}" -eq 0 ]; then
+      echo "🔍 gitleaks pre-push scan: ${local_ref}" >&2
+      has_commit=1
+    fi
+
+    scan_commit "${commit}"
+  done <"${commit_list_file}"
+
+  rm -f "${commit_list_file}"
+
+  if [ "${has_commit}" -eq 0 ]; then
+    echo "ℹ️  No new commits to scan for ${local_ref}." >&2
+    continue
+  fi
+done

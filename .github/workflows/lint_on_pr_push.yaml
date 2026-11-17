@@ -1,0 +1,22 @@
+name: lint (PR/Push)
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  python_lint:
+    uses: ./.github/workflows/python_lint_workflow_call_dispatch.yaml
+    with:
+      run_mode: changed
+
+  docker_lint:
+    uses: ./.github/workflows/docker_lint_workflow_call_dispatch.yaml
+    with:
+      run_mode: changed

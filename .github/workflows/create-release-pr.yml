@@ -1,0 +1,86 @@
+name: Create release PR
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version (e.g. v1.2.3)"
+        required: true
+        type: string
+      source_branch:
+        description: "Branch to cut the release from"
+        required: false
+        default: "develop"
+        type: string
+      target_branch:
+        description: "Branch to merge the release into"
+        required: false
+        default: "main"
+        type: string
+
+jobs:
+  create-release-pr:
+    runs-on: ubuntu-slim
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      # Validate that the version follows v1.2.3 format.
+      # Only enforced in dsg-project-template itself; forks may use other schemes.
+      - name: Validate version format
+        if: github.repository == 'abeja-inc/dsg-project-template'
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          if ! echo "$VERSION" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "Error: version '${VERSION}' does not follow the expected format (e.g. v1.2.3)."
+            exit 1
+          fi
+
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+          ref: ${{ inputs.source_branch }}
+
+      - name: Create release branch
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          release_branch="release/${VERSION}"
+          if git ls-remote --exit-code origin "refs/heads/${release_branch}" > /dev/null 2>&1; then
+            echo "Branch '${release_branch}' already exists on remote – skipping branch creation."
+            exit 0
+          fi
+          git checkout -b "${release_branch}"
+          git push -u origin "${release_branch}"
+
+      - name: Create release PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ inputs.version }}
+          SOURCE_BRANCH: ${{ inputs.source_branch }}
+          TARGET_BRANCH: ${{ inputs.target_branch }}
+        run: |
+          # Skip if an open release PR already exists
+          existing=$(gh pr list \
+            --base "${TARGET_BRANCH}" \
+            --head "release/${VERSION}" \
+            --state open \
+            --json number \
+            --jq 'length')
+          if [ "$existing" -gt 0 ]; then
+            echo "A release PR already exists – skipping creation."
+            exit 0
+          fi
+
+          printf -v body \
+            "## Release %s\n\nThis PR was automatically created to release version \`%s\`.\n\n- **Source branch:** \`%s\`\n- **Release branch:** \`release/%s\`\n- **Target branch:** \`%s\`" \
+            "${VERSION}" "${VERSION}" "${SOURCE_BRANCH}" "${VERSION}" "${TARGET_BRANCH}"
+
+          gh pr create \
+            --base "${TARGET_BRANCH}" \
+            --head "release/${VERSION}" \
+            --title "release: ${VERSION}" \
+            --body "$body"

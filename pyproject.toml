@@ -1,0 +1,100 @@
+[project]
+name = "project"
+version = "0.1.0"
+requires-python = ">=3.10,<3.13"
+dependencies = [
+    "lastpass-secret-provider",
+    "project-module",
+    "spreadsheet",
+]
+
+[tool.uv]
+default-groups = "all"
+# Dependency cooldowns: Exclude recently released packages to mitigate supply chain attack risks.
+# Adjust the duration based on your project's security requirements (e.g., "24 hours", "3 days", "1 week", "30 days").
+# Ref: https://docs.astral.sh/uv/concepts/resolution/#dependency-cooldowns
+exclude-newer = "1 week"
+# Override cooldown periods for specific packages:
+# exclude-newer-package = { some-critical-package = "0 days", some-stable-package = "30 days" }
+# certifi is exempted from the cooldown so that the emergency fix for a
+# compromised root CA (GHSA-6q48-6c7w-9gw2, released 2026-10-20) can be
+# resolved immediately. Remove this override once certifi 2026.10.19 is older
+# than the cooldown period.
+exclude-newer-package = { certifi = "0 days" }
+# Security floors for transitive dependencies. These are not direct dependencies,
+# so constraining them here keeps the floor in effect no matter which dependency
+# group pulls them in, and without declaring them as direct dependencies.
+# Ref: https://docs.astral.sh/uv/reference/settings/#constraint-dependencies
+constraint-dependencies = [
+    # tornado is pulled in transitively (jupyterlab / notebook / jupyter-server /
+    # jupyter-client / terminado / ipykernel) and none of them pins a safe lower
+    # bound. >= 6.5.9 fixes HIGH vulnerabilities (GHSA-chx6-46f5-w4vp,
+    # GHSA-c2m8-h5v5-343r) and GHSA-3hv7-mjh2-fv65, on top of the earlier ones
+    # fixed in 6.5.8 (GHSA-mpf4-983q-p7j4, GHSA-8423-8fgw-73vq,
+    # GHSA-wwv5-g3v4-889x). Drop this once the upstream packages require a safe
+    # version themselves.
+    "tornado>=6.5.9",
+    # mistune is pulled in transitively by nbconvert, which only requires
+    # >=2.0.3,<4. >= 3.3.3 fixes a HIGH vulnerability (GHSA-6m44-fpc8-c3rq).
+    "mistune>=3.3.3",
+    # urllib3 is pulled in transitively via requests (google-api-core /
+    # requests-oauthlib / jupyterlab-server), which does not pin a safe lower
+    # bound. >= 2.8.0 fixes HIGH vulnerabilities (GHSA-vxq7-64xx-v4gw,
+    # GHSA-8988-9cw3-xx77) and GHSA-gh4c-6fx4-qh6g.
+    "urllib3>=2.8.0",
+    # certifi is pulled in transitively (requests / httpx / jupyter tooling).
+    # >= 2026.10.19 removes the emSign ECC Root CA - G3 root whose intermediate
+    # CA keys are compromised (CRITICAL, GHSA-6q48-6c7w-9gw2).
+    "certifi>=2026.10.19",
+    # pyasn1 is pulled in transitively via google-auth -> pyasn1-modules
+    # (spreadsheet -> google-api-python-client / gspread), and pyasn1-modules
+    # only requires >=0.6.1,<0.7.0. >= 0.6.5 fixes HIGH DoS vulnerabilities in
+    # the decoders (GHSA-2qm8-x737-gmw5, GHSA-mm57-4v3p-rchx,
+    # GHSA-9m75-vc3g-4x39, GHSA-fm9c-5rcf-2q5p).
+    "pyasn1>=0.6.5",
+    # soupsieve is pulled in transitively via beautifulsoup4 (spreadsheet ->
+    # google, and nbconvert in the jupyter group), which does not pin a safe
+    # lower bound. >= 4.0.0 fixes HIGH vulnerabilities (GHSA-mmhr-3c5m-f64f,
+    # GHSA-6655-6qjp-jx7x) and GHSA-7g44-g9rc-x53w. soupsieve >= 3.0.2 requires
+    # Python >= 3.11.5, so the floor applies only there; the resolution for
+    # Python < 3.11.5 stays on 2.10 (vulnerable, no fixed version exists).
+    # Drop the marker once requires-python is raised to >= 3.11.5.
+    "soupsieve>=4.0.0; python_full_version >= '3.11.5'",
+    # oauthlib is pulled in transitively via requests-oauthlib
+    # (spreadsheet -> gspread -> google-auth-oauthlib), and requests-oauthlib
+    # only requires >=3.0.0. >= 4.0.1 fixes a HIGH vulnerability in the device
+    # authorization grant (GHSA-3jp2-3mrg-2vxc).
+    "oauthlib>=4.0.1",
+]
+
+[tool.uv.sources]
+project-module = { workspace = true }
+lastpass-secret-provider = { workspace = true }
+spreadsheet = { workspace = true }
+
+[dependency-groups]
+dev = [
+    "mypy~=1.15.0",
+    "ruff~=0.11.2",
+    "pytest~=8.4.1",
+    "pytest-cov~=6.2.1",
+    "pytest-mock~=3.12.0",
+]
+jupyter = [
+    # jupyterlab >= 4.6.4 / notebook >= 7.6.3 are required to fix a HIGH
+    # vulnerability (GHSA-6966-vjj6-99xv) and GHSA-3325-v43h-43rv /
+    # GHSA-3jqq-pw4j-pqcj, on top of the earlier ones fixed in jupyterlab 4.5.10
+    # (GHSA-pppj-hq3g-57pj, GHSA-gx64-gj6p-pc4c) and jupyterlab 4.5.7 /
+    # notebook 7.5.6 (GHSA-37w4-hwhx-4rc4, GHSA-mqcg-5x36-vfcg,
+    # GHSA-rch3-82jr-f9w9). notebook 7.6.3 requires jupyterlab >=4.6.4,<4.7,
+    # so keep these two constraints in sync when updating.
+    "jupyterlab~=4.6.4",
+    "notebook~=7.6.3",
+]
+
+[tool.uv.workspace]
+members = [
+    "project_module",
+    "libs/abeja-toolkit/lastpass_secret_provider",
+    "libs/abeja-toolkit/spreadsheet",
+]

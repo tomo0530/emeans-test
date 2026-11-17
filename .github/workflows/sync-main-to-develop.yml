@@ -1,0 +1,51 @@
+name: Sync main to develop
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: sync-main-to-develop-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    # Only run in the dsg-project-template repository itself
+    if: github.repository == 'abeja-inc/dsg-project-template'
+    runs-on: ubuntu-slim
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Create sync PR from main to develop
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COMMIT_SHA: ${{ github.sha }}
+        run: |
+          # Skip if an open sync PR already exists
+          existing=$(gh pr list \
+            --base develop \
+            --head main \
+            --state open \
+            --json number \
+            --jq 'length')
+          if [ "$existing" -gt 0 ]; then
+            echo "A sync PR already exists – skipping creation."
+            exit 0
+          fi
+
+          printf -v body \
+            'This PR was automatically created to sync changes from `main` back into `develop`.\n\nTriggered by commit: %s' \
+            "${COMMIT_SHA}"
+
+          gh pr create \
+            --base develop \
+            --head main \
+            --title "chore: sync main into develop" \
+            --body "$body"
