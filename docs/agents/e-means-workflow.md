@@ -21,8 +21,8 @@ investigations, fixes, evidence, and commits into coherent milestones.
 ## Model selection
 
 Check current supported IDs at dispatch. The current mapping is
-Luna=`gpt-6-luna`, Terra=`gpt-6.1-terra`, Sol=`gpt-6.1-sol`,
-Astra=`gpt-6-astra`.
+Luna=`gpt-6-luna`, Terra=`gpt-6.1-terra`, Sol=`gpt-6.2-sol`,
+Astra=`gpt-6.2-astra`.
 
 | Work | Model and effort |
 | --- | --- |
@@ -38,13 +38,12 @@ Fable/Opus selections when the native subagent tool does not offer them.
 
 ## Review gates
 
-For the original design/plan commit, require explicit approval from Claude
-Fable xhigh and fresh Astra xhigh. Protocol/evaluation/execution safety
-also require final Opus xhigh and GPT-6.1 Sol xhigh approval. Review
-the complete set in parallel with explicit scope and bounded requests.
+The [design review record](../plan/review-record.md) lists the completed
+design reviews and their exact models.
 
-For later implementation, protocol freeze, and scientific conclusions,
-Opus xhigh plus Sol xhigh are the final gate. Send judgment calls and
+For implementation, protocol freeze, and scientific conclusions,
+require approval from Opus xhigh and GPT-6.2 Sol xhigh. Review
+the complete set in parallel with explicit scope. Send judgment calls and
 proposed corrections/improvements to both in one consolidated
 discussion. Complex new design ideas may additionally consult Astra
 high plus Fable high. An early opinion does not approve later docs.

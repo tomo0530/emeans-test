@@ -1,0 +1,5 @@
+condition_id,method,budget,paired_seeds,train_median_ratio_det_over_stock_median,train_median_ratio_det_over_stock_min,train_median_ratio_det_over_stock_max
+pilot-S0,torch_e_means,8.0,5,1.4573629386538345,1.4163341490919383,1.4837945937315578
+pilot-S0,torch_lloyd,10.0,5,1.9128585629400137,1.729996266187022,2.0676049060328463
+pilot-arxiv_nomic-R0,torch_e_means,8.0,5,1.0166929482215745,1.014079457351671,1.0198609321118275
+pilot-arxiv_nomic-R0,torch_lloyd,10.0,5,1.106459202385958,1.1029149819169228,1.1139307080271803

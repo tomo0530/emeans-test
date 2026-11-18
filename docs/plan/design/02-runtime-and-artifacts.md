@@ -107,7 +107,7 @@ data本体・centroid・run logはGit管理外。commitするのはconfig、data
 
 ## 検証と引き渡し
 
-tiny FP64 oracleで既知MSE、distance/label順序、空cluster、重複、非有限値、保存再読込を確認する。Torch Lloydは同初期値の1反復とCPU参照、Lloyd MSE単調性、空中心維持、N反復prefix整合を確認する。通常のGPU数値再現許容はatol=1e-6/rtol=1e-4のまま維持する。新profileの8 GPU資格判定では、S0/大形状について各GPUのfresh process 3反復でe-means centroid SHA一致を追加条件とし、Lloydには従来の数値許容を用いる。正式runner fresh-process確認は完了したが、準備済み全22条件coverageのGPU実行、8 GPU再資格、cohort干渉判定は未完了であり、詳細は[GPU再現性profile記録](../../research/2026-11-18-gpu-reproducibility.md)に記す。
+tiny FP64 oracleで既知MSE、distance/label順序、空cluster、重複、非有限値、保存再読込を確認する。Torch Lloydは同初期値の1反復とCPU参照、Lloyd MSE単調性、空中心維持、N反復prefix整合を確認する。通常のGPU数値再現許容はatol=1e-6/rtol=1e-4のまま維持する。新profileの8 GPU資格判定では、S0/大形状について各GPUのfresh process 3反復でe-means centroid SHA一致を追加条件とし、Lloydには従来の数値許容を用いる。正式runner fresh-process確認、全22条件coverage44件、8 GPU再資格720件、cohort干渉判定を完了した。本評価はmain-isolatedで実行する。[本評価プロトコル](../../report/protocol/README.md)に根拠を記録する。
 
 CPU testがtorch/GPUを必須にせず実行でき、GPU marker付きintegrationがV100 native演算を実行することを受入条件とする。runnerには中断/再開、設定hash相違、欠損artifact、1worker失敗、秘密値非出力のテストを置く。統計は手計算できるpaired fixtureで検証する。意味のあるtestとformat→type→lintを束ねて確認する。
 

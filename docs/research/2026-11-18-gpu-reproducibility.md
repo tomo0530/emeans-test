@@ -1,6 +1,6 @@
 # GPU再現性profileの判断と資格確認
 
-更新日: 2026-11-18。対象はGPU実験の実行profileであり、e-meansのアルゴリズム、数値許容、実験条件を変更する判断ではない。profileのruntime/config変更と正式runnerのfresh-process確認は完了した。8 GPU資格確認、全22条件GPU preflight、干渉判定、本評価開始は未完了である。
+更新日: 2026-11-18。対象はGPU実験の実行profileであり、e-meansのアルゴリズム、数値許容、実験条件を変更する判断ではない。profileのruntime/config変更と正式runnerのfresh-process確認は完了した。8 GPU資格確認、全22条件GPU preflight、干渉判定を完了した。主評価前の証拠は[本評価プロトコル](../report/protocol/README.md)にまとめる。
 
 ## 判断
 
@@ -60,21 +60,18 @@ workspace・deterministic・graph autoの診断warm train中央値はstockの約
 
 正式e-means runはeligibilityのみを観測し、実replay countは未観測（null）とする。Lloydはこのe-means graph経路の対象外である。coverageでsuccess以外が1件でも出た場合は次の条件へ進まず停止する。
 
-## 主評価前に残る資格確認
+## 主評価前の資格確認
 
-次の項目は未実施であり、完了するまで主testを開始しない。
+非主seed 100で全22条件の最大予算を実行し、両GPU手法44件が成功した。新profileの8 GPU資格は720件が成功し、54回の計時で全8 GPUに正の共通学習時間窓があった。e-meansは同じ入力・初期中心・設定の群内でcentroid SHAが一致し、Lloydは既定の数値許容に収まった。
 
-1. **全条件coverage:** 非主seed 100、両GPU手法の最大予算を使う全22条件の実行表・coverage準備は完了しているが、GPU preflight実行は未着手。決定性未対応演算やcapture制約による失敗を記録し、例外cellだけ設定を変えない。
-2. **8 GPU・S0/大形状再資格:** 新profileでfresh processを用い、S0と大形状を含む固定条件について各GPUで3反復を行う。e-meansは全GPU・全反復のcentroid SHA一致、Lloydは従来の数値許容を資格条件とする。単独・8 GPU同時条件で固定入力・初期中心、実overlap、時間干渉、allocator/NVML/host memoryも再判定する。S0の診断だけで大形状や全条件の適合を推定しない。
-3. **干渉と採用cohort:** 新profileによる単独・8 GPUの速度/資源を比較し、5%判定に基づくcohortを主test前に凍結する。
-4. **主test前gate:** 正式runner検証、profile適合、8 GPU資格、干渉に基づくcohortを揃えてprotocolを凍結し、Opus/Solの限定reviewを通す。
+seed100の干渉判定では、適格48比較中16比較が5%以上だった。該当したのはS0の両手法で、本評価にmain-isolatedを採用する。正式pilot360件と感度検証160件も完了した。本評価前のOpus/Sol判定に、未解決の計時フラグと扱いを含める。[本評価プロトコル](../report/protocol/README.md)
 
 再資格の代表条件はpilot S0、arxiv R0、landmark R0（T8/I10、seed100/101）。単独は各GPUで3反復、並列は8 GPUを揃えたfresh process世代を3回使う。境界条件はarxiv Rk-large（n500k,d768,k8192）、arxiv Rn-full（n1,324,643,d768,k2048）、Sd（n100k,d1024,k256）で、seed100、T12/I100、8 GPUのfresh 3世代とする。最大予算coverageは全22条件で別に実施する。
 
 5%判定はseed100の同じGPU・条件・手法を対応付け、単独3反復の中央値と並列3世代の中央値の相対差の絶対値を比較する。いずれかが5%以上なら保守的にmain-isolatedを採用する。seed101は開始・終了時の再現性照合用として保持し、この選択には混ぜない。数値資格に失敗したcampaignからcohortを採用しない。
 
 
-既存の通常181 CPU test、明示10 GPU test、format/type/lintの結果はprofile導入前sourceの証拠であり、profile sourceでの199 CPU / 10 GPU検証とは区別する。準備済み全22条件coverageのGPU実行、8 GPU/S0・大形状再資格、cohort干渉判定、主test前gateはいずれもpendingである。
+既存の通常181 CPU test、明示10 GPU test、format/type/lintの結果はprofile導入前sourceの証拠であり、profile sourceでの199 CPU / 10 GPU検証とは区別する。
 
 ## CPU実行資源の起動監査
 
@@ -82,7 +79,7 @@ workspace・deterministic・graph autoの診断warm train中央値はstockの約
 
 実spawnの回帰試験では全16 threadがCPU0–15を継承し、実trialのOpenBLASも16 threadだった。正常時と起動例外時の双方で、親の元affinityと3種のthread数環境変数を復元した。GPU経路・数学・profile設定は変更していない。各runの主thread affinity記録は維持し、固定ライブラリ下での全thread継承はこの起動試験で確認する。
 
-発見時点で正式CPU計時・主testは未開始。先行GPU coverageは6条件・12 successを工程証拠として保全し、実行中CLIを終えてからsourceを修正した。source identityが変わるため、全22条件coverageは新しいfreeze commitと新rootからやり直す。途中の旧rootを完了扱いしたり、異なるsourceの台帳へresumeしたりしない。
+発見時点で正式CPU計時・主testは未開始。先行GPU coverageは6条件・12 successを工程証拠として保全し、実行中CLIを終えてからsourceを修正した。source identityが変わるため、新しいfreeze commitと新rootで全22条件coverageを再実行し、44件すべて成功した。旧rootは先行検証の証拠として保持した。
 
 ## 主test前に固定する限定感度調査
 

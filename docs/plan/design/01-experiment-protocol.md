@@ -23,7 +23,7 @@
 
 GPUの`torch_e_means`と`torch_lloyd`は、共通の`native-fp32-deterministic-v1` profileを使う方針とする。`CUBLAS_WORKSPACE_CONFIG=:4096:8`、`torch.use_deterministic_algorithms(True, warn_only=False)`、CUDA graph policy=`upstream_auto`を適用する。選択理由は既定の同seed再現性要件を満たすためで、観測MSEの値や速度ではない。上流source、FP32精度、batch/schedule/revival、seed、予算点、split、許容値は変えない。
 
-このprofileはPyTorch既定の実行条件そのものではない。GPU主図は「再現性を要求したV100/native FP32 Torch profile」での品質–時間比較として示し、stock defaultの速度・品質へ一般化しない。stockのS0再現許容違反と診断結果は独立findingとして残し、profile/cohort/CIをまたいで混ぜない。診断根拠・限界・未完了の資格確認は[GPU再現性profile記録](../../research/2026-11-18-gpu-reproducibility.md)を参照する。
+このprofileはPyTorch既定の実行条件そのものではない。GPU主図は「再現性を要求したV100/native FP32 Torch profile」での品質–時間比較として示し、stock defaultの速度・品質へ一般化しない。stockのS0再現許容違反と診断結果は独立findingとして残し、profile/cohort/CIをまたいで混ぜない。診断根拠・限界・資格確認の結果は[GPU再現性profile記録](../../research/2026-11-18-gpu-reproducibility.md)を参照する。
 
 Faiss/e-meansの点数上限を全件条件へ明示設定し、実処理件数を確認する。MiniBatchのbatch抽出は手法自体なので残し、累積sample数と重複を含む処理件数を記録する。Lloyd/Elkanの収束停止は可能な範囲で無効化し、同一割当による早期収束は実反復数を記録する。通常L2を主比較にし、入力がunit normでも中心をunit normに制約しない。spherical k-meansは別の目的である。
 
@@ -110,9 +110,9 @@ parallel sentinelではwarm-upの後、CUDA入力転送と同期を終えてtrai
 
 barrier waitはtrain timerから除外する一方、連続したResident-input pipelineには含め、`coordination_wait_seconds`として別記する。sentinelのpipeline値は通常のpipeline比較に混ぜず、sentinelの5%干渉判定はwarm `train_seconds`だけで行う。再現MSEの許容はGPU atol1e-6+rtol1e-4、CPU atol1e-6+rtol1e-5。計時差10%超は不安定として原因を調べる。これは数値/計時の検査で、手法間の品質合格幅ではない。pilot中にseed101の初回記録も保存し、最後に同seed101のsentinelを別measurement_idで再実行して比較する。
 
-stockのS0 engineering campaignは全48 runがsuccessだった一方、e-means同seed MSEの分散が数値再現許容を超え、campaign資格は不合格だった。この個別run statusをfailedへ書き換えず、campaignをunqualifiedとして保存する。新profileの正式runner fresh-process確認は完了したが、8 GPUのS0/大形状再資格・干渉判定は未完了であり、本評価開始前の必須gateとする。seed100・両GPU手法・最大予算による全22条件coverageの実行表準備は完了したが、GPU preflight実行は未着手である。8 GPU資格ではe-meansの各GPU fresh process 3反復すべてのcentroid SHA一致、Lloydの既定数値許容を使う。既存の181 CPU/10 GPU検証はprofile導入前sourceに対する結果で、新profileの資格確認には数えない。profile sourceの199 CPU test、10 GPU test、lintと正式runnerのfresh-process結果は[GPU再現性profile記録](../../research/2026-11-18-gpu-reproducibility.md)を参照する。
+stockのS0 engineering campaignは48 runが個別に成功した一方、e-meansの同seed MSEは数値再現許容を超えた。個別statusを保持し、campaignはunqualifiedとする。新profileは全22条件の最大予算coverage44件と、8 GPU再資格720件を完了した。e-meansは該当数値identityごとに全反復のcentroid SHAが一致し、Lloydは既定許容内だった。正式pilotは360件すべて成功し、validationまでを評価した。環境、感度検証160件、計時フラグ、レビューの条件は[本評価プロトコル](../../report/protocol/README.md)に記録する。
 
-R0とS0の代表予算点（e-means T=3,8、Lloyd I=10,50、MiniBatch pass=2,10）は全10seedでrepeat0–2を実行しseed内時間中央値を使う。他点はrepeat0。qualifiedな単独GPUと8 GPU同時sentinelのwarm `train_seconds`中央値が5%以上違えば、本計時の採用cohortをmain-isolatedにし単独GPUで行う。5%は測定干渉の検査値。採用cohortはpilot後・主test前に凍結し、元artifactを上書きしない。学習後の評価並列化を学習時間へ加算しない。
+R0とS0の代表予算点（e-means T=3,8、Lloyd I=10,50、MiniBatch pass=2,10）は全10seedでrepeat0–2を実行しseed内時間中央値を使う。他点はrepeat0。qualifiedな単独GPUと8 GPU同時sentinelのwarm `train_seconds`中央値が5%以上違えば、本計時の採用cohortをmain-isolatedにし単独GPUで行う。5%は測定干渉の検査値。seed100の適格48比較のうち16比較で5%以上の差が出たため、本評価はmain-isolatedを採用する。pilot終了後・主test前に設定を凍結し、元artifactを保持する。学習後の評価並列化を学習時間へ加算しない。
 
 メモリ適合しないElkan等はOOMを再現し続けずinfeasibleと記録する。予算によるtimeoutを設定する場合はpilot実測に基づく運用上の監視値を凍結し、打切り値と成功時間を混同しない。固定の全体GPU時間上限は置かない。
 

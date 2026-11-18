@@ -325,7 +325,7 @@ seeds:
 - 8
 - 9
 measurement:
-  cohort: main-parallel
+  cohort: main-isolated
   repeats: 1
   evaluate_test: true
   repeat_rules:

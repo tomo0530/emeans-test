@@ -14,13 +14,13 @@
 
 - 設計・計画のレビュー後、ユーザーからB1–B4の実装・実験・commit・pushまで自律実行の指示を受領済み。以下の全タスクを対象とする。
 - Python `>=3.14,<3.15`、既存GPU Docker内のuv環境を使う。ホスト実行や新規コンテナ起動を自動代替にしない。Docker環境をread-onlyで確認できない場合は停止して報告する。
-- ユーザーは依存追加等の自律実行を許可済み。`exclude-newer = "1 week"`は維持し、追加承認に従い固定版faiss-cpu 1.16.0のみcooldown例外とする。候補版と実機確認は[環境仕様](design/02-runtime-and-artifacts.md#環境)参照。
+- ユーザーは依存追加等の自律実行を許可済み。`exclude-newer = "1 week"`は維持し、既存のcertifi例外を維持する。研究用の追加例外はユーザー承認済みの固定版faiss-cpu 1.16.0に限る。候補版と実機確認は[環境仕様](design/02-runtime-and-artifacts.md#環境)参照。
 - 既存V100 32GB ×8、driver 535、物理CPU 40 cores、RAM 504GiB。実行は資源と計時の仕様に従い、GPU非適合をCPUのみで完了扱いしない。
 - 全手法はFP32、同一split・共通初期中心、最終centroidでの独立exact MSEを使う。総予算Tごとに独立完走し、warm/cold/転送/評価を分離する。品質マージンと全体時間上限を固定しない。
 - 実用比較と機構比較を分け、CPU/GPU時間比をアルゴリズム単独の効果と呼ばない。条件表、seed、budget、ライセンス、計時、失敗の定義は[実験仕様](design/01-experiment-protocol.md)が正本。
 - 上流e-meansを再実装しない。GPUは`QuantizedEmeans`の`quantizer=None`、`assignment_backend="native"`、FP32。薄いTorch Lloydは同じ上流assignmentを共有し独立oracleで検証する。
 - CPU/GPUを同じ台帳で実行する間は`gpu` extraとlockを固定する。明示的な`uv sync --extra gpu`後、品質検査は`UV_NO_SYNC=1 make ...`、実験CLIは`uv run --extra gpu ...`で実行する。親CLIのCPU affinityもphase間で変えない。実行中のcommit・source編集・依存同期は行わず、検出時は手法のterminal failedを増やさずphaseを中断する。
-- 計時仕様の改訂は`plan_revision=2026-11-17-timing-v2`、`e2e_scope=resident-input-pipeline-v1`で識別する。主warm/MSE/条件/seed/予算は維持し、secondaryはresident inputから中心保存までへ限定する。旧load/全評価込みwallは診断metadataへ分離する。詳細は実験仕様を正本とする。
+- 計時仕様の改訂は`e2e_scope=resident-input-pipeline-v1`で識別する。`2026-11-17-timing-v2`で導入し、現行の`plan_revision=2026-11-18-cuda-deterministic-v1`にも引き継いだ。主warm/MSE/条件/seed/予算は維持し、secondaryはresident inputから中心保存までへ限定する。旧load/全評価込みwallは診断metadataへ分離する。詳細は実験仕様を正本とする。
 - 実ベクトルのみを取得しencoderを使わない。HF_TOKEN以外の認証は追加しない。データ本体・centroid・run logはGit管理外。既存dirty変更を保持し、関係外の変更を整形・コミットしない。
 - 研究用パッケージは型付き関数・配列契約と純粋なlogic/I/Oの分離に従う。ENGへの引き渡し時にはDS integration contractを適用する。
 
@@ -38,9 +38,9 @@
 
 B1完了後、B2の3担当は固定された契約を消費し、記載されたファイルのみを所有して並列作業する。契約変更が必要なら合流点で調整する。B3で統合し全体smoke・関連テストを通した後、実装全体を束ねてレビューする。B4はpilot、条件凍結、本評価、報告の順に進む。細かなタスクごとのレビューやコミットを連続させない。コミットはユーザーが許可したまとまり単位とし、既存dirty変更を含めない。
 
-実行時のtool allowlistで利用可能IDを確認する。割当の目安は、定型文書にLuna `gpt-6-luna`、実装にTerra `gpt-6.1-terra`、統計にSol `gpt-6.1-sol`を各xhigh、難しい設計にAstra `gpt-6-astra`のmedium/high/xhighを複雑度に応じて使う。追加の高度な論点はAstra highとFable highへまとめて相談できる。最終レビュー前に実装者自身が仕上げる。
+実行時のtool allowlistで利用可能IDを確認する。割当の目安は、定型文書にLuna `gpt-6-luna`、実装にTerra `gpt-6.1-terra`、統計にSol `gpt-6.2-sol`を各xhigh、難しい設計にAstra `gpt-6.2-astra`のmedium/high/xhighを複雑度に応じて使う。追加の高度な論点はAstra highとFable highへまとめて相談できる。最終レビュー前に実装者自身が仕上げる。
 
-重要なprotocol、metrics、再現性、科学的結論の最終ゲートはOpus xhighとGPT-6.1 Sol xhighの双方。判断と修正案を束ねて両者に提示し、指摘を解決した後に完了とする。両者を利用できない場合は承認済みと扱わず報告する。
+重要なprotocol、metrics、再現性、科学的結論の最終ゲートはOpus xhighとGPT-6.2 Sol xhighの双方。判断と修正案を束ねて両者に提示し、指摘を解決した後に完了とする。両者を利用できない場合は承認済みと扱わず報告する。
 
 ### B1: 環境と契約
 
@@ -120,32 +120,32 @@ B1完了後、B2の3担当は固定された契約を消費し、記載された
 
 **Interfaces:** B2/B3の3 CLIとartifact schemaを消費する。設定・条件表・判断基準は実験仕様が正本。
 
-- [ ] `pilot.yaml`の別seed/subsetで以下を実行し、V100 native FP32、全8 GPU sentinel、単独対同時干渉、CPU/GPU分離、memory、タイミング区分を検証する。5%以上の干渉時は正式時間を単独GPUで再計時する。
+- [x] `pilot.yaml`の別seed/subsetで以下を実行し、V100 native FP32、全8 GPU sentinel、単独対同時干渉、CPU/GPU分離、memory、タイミング区分を検証する。5%以上の干渉時は正式時間を単独GPUで再計時する。
 
   ```bash
   uv run --extra gpu python scripts/e_means/prepare_data.py --config configs/experiments/e_means/pilot.yaml --data-root experimentation/dataset/e_means
   uv run --extra gpu python scripts/e_means/run.py --config configs/experiments/e_means/pilot.yaml --data-root experimentation/dataset/e_means --output-root experimentation/outputs/e_means/pilot --phase cpu --dry-run
   uv run --extra gpu python scripts/e_means/run.py --config configs/experiments/e_means/pilot.yaml --data-root experimentation/dataset/e_means --output-root experimentation/outputs/e_means/pilot --phase cpu --resume
   uv run --extra gpu python scripts/e_means/run.py --config configs/experiments/e_means/pilot.yaml --data-root experimentation/dataset/e_means --output-root experimentation/outputs/e_means/pilot --phase gpu --devices 0,1,2,3,4,5,6,7 --resume
-  uv run --extra gpu python scripts/e_means/analyze.py --runs-root experimentation/outputs/e_means/pilot --output-root experimentation/outputs/e_means/pilot-analysis
+  uv run --extra gpu python scripts/e_means/analyze.py --runs-root experimentation/outputs/e_means/pilot --output-root experimentation/outputs/e_means/pilot-analysis --require-complete
   ```
 
-- [ ] parallel sentinelは、凍結した8 UUID/group/timeoutと転送同期後のadapter hookで待ち合わせ、実学習時刻の共通overlapを監査する。groupの欠損・abort・再使用を成功へ変換せず、新groupで全参加者を再資格確認する。sentinel pipelineに含まれる待機時間は別記し、5%判定にはwarm trainだけを使う。
-- [ ] 主testを見る前に条件・予算・seed・resolved params・計時cohort・再現許容・適合性・変更理由・設定hashをまとめて凍結する。pilotのtest評価が拒否されていることを確認する。Opus xhigh＋GPT-6.1 Sol xhighの双方がprotocolを承認してから本評価へ進む。異常/非適合は台帳へ残し、成功扱いしない。
-- [ ] 以下を各設定について順に実行する。`core`は実データ10セル、`stress`は合成12セルを担う。pilotの干渉が5%以上なら、下記のGPUコマンドの `--devices 0,1,2,3,4,5,6,7` を `--devices 0` に替えて単独GPUで正式計時する。両方の全適合method・budget・10 seedについて台帳が埋まり、failed/infeasible/unsupportedとunreachedを保存する。操作上の再開は同じコマンドで行う。
+- [x] parallel sentinelは、凍結した8 UUID/group/timeoutと転送同期後のadapter hookで待ち合わせ、実学習時刻の共通overlapを監査する。groupの欠損・abort・再使用を成功へ変換せず、新groupで全参加者を再資格確認する。sentinel pipelineに含まれる待機時間は別記し、5%判定にはwarm trainだけを使う。
+- [ ] 主testを見る前に条件・予算・seed・resolved params・計時cohort・再現許容・適合性・変更理由・設定hashをまとめて凍結する。pilotのtest評価が拒否されていることを確認する。Opus xhigh＋GPT-6.2 Sol xhighの双方がprotocolを承認してから本評価へ進む。異常/非適合は台帳へ残し、成功扱いしない。
+- [ ] 以下を各設定について順に実行する。`core`は実データ10セル、`stress`は合成12セルを担う。干渉判定の結果、正式GPU計時は `--devices 0` で実行する。根拠と凍結値は[本評価プロトコル](../report/protocol/README.md)を参照。両方の全適合method・budget・10 seedについて台帳が埋まり、failed/infeasible/unsupportedとunreachedを保存する。操作上の再開は同じコマンドで行う。
 
   ```bash
   uv run --extra gpu python scripts/e_means/prepare_data.py --config configs/experiments/e_means/core.yaml --data-root experimentation/dataset/e_means
   uv run --extra gpu python scripts/e_means/run.py --config configs/experiments/e_means/core.yaml --data-root experimentation/dataset/e_means --output-root experimentation/outputs/e_means/core --phase cpu --dry-run
   uv run --extra gpu python scripts/e_means/run.py --config configs/experiments/e_means/core.yaml --data-root experimentation/dataset/e_means --output-root experimentation/outputs/e_means/core --phase cpu --resume
-  uv run --extra gpu python scripts/e_means/run.py --config configs/experiments/e_means/core.yaml --data-root experimentation/dataset/e_means --output-root experimentation/outputs/e_means/core --phase gpu --devices 0,1,2,3,4,5,6,7 --resume
+  uv run --extra gpu python scripts/e_means/run.py --config configs/experiments/e_means/core.yaml --data-root experimentation/dataset/e_means --output-root experimentation/outputs/e_means/core --phase gpu --devices 0 --resume
   uv run --extra gpu python scripts/e_means/analyze.py --runs-root experimentation/outputs/e_means/core --output-root experimentation/outputs/e_means/core-analysis --require-complete
   uv run --extra gpu python scripts/e_means/prepare_data.py --config configs/experiments/e_means/stress.yaml --data-root experimentation/dataset/e_means
   uv run --extra gpu python scripts/e_means/run.py --config configs/experiments/e_means/stress.yaml --data-root experimentation/dataset/e_means --output-root experimentation/outputs/e_means/stress --phase cpu --dry-run
   uv run --extra gpu python scripts/e_means/run.py --config configs/experiments/e_means/stress.yaml --data-root experimentation/dataset/e_means --output-root experimentation/outputs/e_means/stress --phase cpu --resume
-  uv run --extra gpu python scripts/e_means/run.py --config configs/experiments/e_means/stress.yaml --data-root experimentation/dataset/e_means --output-root experimentation/outputs/e_means/stress --phase gpu --devices 0,1,2,3,4,5,6,7 --resume
+  uv run --extra gpu python scripts/e_means/run.py --config configs/experiments/e_means/stress.yaml --data-root experimentation/dataset/e_means --output-root experimentation/outputs/e_means/stress --phase gpu --devices 0 --resume
   uv run --extra gpu python scripts/e_means/analyze.py --runs-root experimentation/outputs/e_means/stress --output-root experimentation/outputs/e_means/stress-analysis --require-complete
   ```
 
 - [ ] 別seed sentinel再現、全セルの台帳・有限値・split/初期中心/設定/版hash・図と数表を照合する。対応bootstrap CI、観測点の到達時間、warm/E2E、失敗・未到達と限界を日本語報告にまとめる。GPU非適合または必須手法全体の欠落は部分完了と明記する。
-- [ ] protocol、metrics、再現性、科学的結論と修正案をまとめ、Opus xhighおよびGPT-6.1 Sol xhighの双方で最終確認し、指摘を解消してから成果を引き渡す。
+- [ ] protocol、metrics、再現性、科学的結論と修正案をまとめ、Opus xhighおよびGPT-6.2 Sol xhighの双方で最終確認し、指摘を解消してから成果を引き渡す。
