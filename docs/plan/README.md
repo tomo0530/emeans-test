@@ -1,6 +1,6 @@
 # e-means 検証の設計・計画
 
-設計・実装計画の索引です。実施状況と検証結果は[実装進捗](implementation-progress.md)に記録します。
+設計・実装計画の索引です。実施状況は[実装進捗](implementation-progress.md)、測定結果と再現手順は[検証結果](../report/README.md)を参照してください。
 
 1. [目的・判断・設計方針](design/00-overview.md)
 2. [実験条件・評価・終了条件](design/01-experiment-protocol.md)

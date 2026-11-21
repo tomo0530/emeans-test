@@ -131,8 +131,8 @@ B1完了後、B2の3担当は固定された契約を消費し、記載された
   ```
 
 - [x] parallel sentinelは、凍結した8 UUID/group/timeoutと転送同期後のadapter hookで待ち合わせ、実学習時刻の共通overlapを監査する。groupの欠損・abort・再使用を成功へ変換せず、新groupで全参加者を再資格確認する。sentinel pipelineに含まれる待機時間は別記し、5%判定にはwarm trainだけを使う。
-- [ ] 主testを見る前に条件・予算・seed・resolved params・計時cohort・再現許容・適合性・変更理由・設定hashをまとめて凍結する。pilotのtest評価が拒否されていることを確認する。Opus xhigh＋GPT-6.2 Sol xhighの双方がprotocolを承認してから本評価へ進む。異常/非適合は台帳へ残し、成功扱いしない。
-- [ ] 以下を各設定について順に実行する。`core`は実データ10セル、`stress`は合成12セルを担う。干渉判定の結果、正式GPU計時は `--devices 0` で実行する。根拠と凍結値は[本評価プロトコル](../report/protocol/README.md)を参照。両方の全適合method・budget・10 seedについて台帳が埋まり、failed/infeasible/unsupportedとunreachedを保存する。操作上の再開は同じコマンドで行う。
+- [x] 主testを見る前に条件・予算・seed・resolved params・計時cohort・再現許容・適合性・変更理由・設定hashをまとめて凍結する。pilotのtest評価が拒否されていることを確認する。Opus xhigh＋GPT-6.2 Sol xhighの双方がprotocolを承認してから本評価へ進む。異常/非適合は台帳へ残し、成功扱いしない。
+- [x] 以下を各設定について順に実行する。`core`は実データ10セル、`stress`は合成12セルを担う。干渉判定の結果、正式GPU計時は `--devices 0` で実行する。根拠と凍結値は[本評価プロトコル](../report/protocol/README.md)を参照。両方の全適合method・budget・10 seedについて台帳が埋まり、failed/infeasible/unsupportedとunreachedを保存する。操作上の再開は同じコマンドで行う。
 
   ```bash
   uv run --extra gpu python scripts/e_means/prepare_data.py --config configs/experiments/e_means/core.yaml --data-root experimentation/dataset/e_means
@@ -147,5 +147,7 @@ B1完了後、B2の3担当は固定された契約を消費し、記載された
   uv run --extra gpu python scripts/e_means/analyze.py --runs-root experimentation/outputs/e_means/stress --output-root experimentation/outputs/e_means/stress-analysis --require-complete
   ```
 
-- [ ] 別seed sentinel再現、全セルの台帳・有限値・split/初期中心/設定/版hash・図と数表を照合する。対応bootstrap CI、観測点の到達時間、warm/E2E、失敗・未到達と限界を日本語報告にまとめる。GPU非適合または必須手法全体の欠落は部分完了と明記する。
-- [ ] protocol、metrics、再現性、科学的結論と修正案をまとめ、Opus xhighおよびGPT-6.2 Sol xhighの双方で最終確認し、指摘を解消してから成果を引き渡す。
+- [x] 別seed sentinel再現、全セルの台帳・有限値・split/初期中心/設定/版hash・図と数表を照合する。対応bootstrap CI、観測点の到達時間、warm/E2E、失敗・未到達と限界を日本語報告にまとめる。GPU非適合または必須手法全体の欠落は部分完了と明記する。
+- [x] protocol、metrics、再現性、科学的結論と修正案をまとめ、Opus xhighおよびGPT-6.2 Sol xhighの双方で最終確認し、指摘を解消してから成果を引き渡す。
+
+[検証結果と再現手順](../report/README.md) · [本評価前レビュー](../reviews/2026-11-17-e-means-pre-test-review.md)

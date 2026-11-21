@@ -1,15 +1,15 @@
 # 実装進捗
 
-更新日: 2026-11-18。目的・条件の正本は[設計索引](README.md)、実施項目は[実装計画](2026-11-17-e-means-implementation-plan.md)。実装検証は性能比較の結論ではありません。
+2026-11-22更新。B1–B4を完了し、22条件・9,520試行と別seedの終了時チェック36試行を照合しました。比較結果は[日本語報告](../report/README.md)、実施項目は[実装計画](2026-11-17-e-means-implementation-plan.md)を参照。
 
-| Batch | 現在の状態 | 確認した証拠 | 残作業 |
+| Batch | 現在の状態 | 確認した証拠 | 利用先 |
 |---|---|---|---|
 | B1: 環境と契約 | 完了・ゲート承認済み | Python3.14.9/Faiss1.16/Torch2.14.1+cu126、契約23件成功、SM70 native FP32 | 凍結環境で実験 |
 | B2-A: データと初期中心 | 完了・ゲート承認済み | データ13＋初期化9件成功。raw2件SHA照合、実10セル・合成12条件×10 seedを準備 | 主評価で利用 |
 | B2-B: adapter | 完了・ゲート承認済み | CPU17件・V100 GPU10件成功。6手法CLI成功、転送同期後hookと実train窓 | 正式pilotで規模確認 |
 | B2-C: 評価・分析 | 完了・ゲート承認済み | 評価14・解析42・sentinel資格18件成功。frozen hash/manifest、新scope照合 | 実測の集計・報告 |
-| B3: runner・smoke | 完了・旧sourceのゲート承認済み | 通常suite181成功、明示GPU10成功、全体format/type/lint、実worker強制終了と復旧。すべてprofile導入前sourceの証拠 | 新profileの8GPU再資格・全条件preflightはB4で実施 |
-| B4: pilot・凍結・主評価・報告 | 予備検証完了 | GPU coverage44件・GPU資格720件・CPU sentinel36件・正式pilot360件・感度160件が成功。8 GPUのCUDA UUID照合も通過 | 本評価前レビュー・条件凍結、本評価9,520件、再現性の再確認、報告・最終レビュー |
+| B3: runner・smoke | 完了・旧sourceのゲート承認済み | 通常suite181成功、明示GPU10成功、全体format/type/lint、実worker強制終了と復旧。すべてprofile導入前sourceの証拠 | B4の正式runner |
+| B4: pilot・凍結・主評価・報告 | 完了 | GPU coverage44件、GPU資格720件、CPU sentinel36件、pilot360件、感度160件の後に条件を凍結。本評価9,520件と終了時36件が成功 | [検証結果](../report/README.md) |
 
 ## 最終ゲートと検証
 
@@ -31,7 +31,7 @@ parallel sentinelは8 UUID・single-use group・timeoutをfreezeし、転送同�
 
 公開vector以外のencoder・原文書・原画像は使いません。追加API keyは不要でHF_TOKENは任意です。data/centroid/run logはGit管理外です。一般cooldown1週と既存のcertifi例外は維持しました。追加例外はユーザー承認済みの固定版Faiss 1.16.0です。
 
-B4の完了までgoalを完了にしません。[profile変更ゲート](../reviews/2026-11-18-gpu-profile.md)もOpus/Solが承認しました。次の2ゲートは、pilot後・主test観測前のprotocol freezeと、本評価後の科学的報告についてOpus/Solへまとめて依頼します。
+[profile変更ゲート](../reviews/2026-11-18-gpu-profile.md)の承認後、OpusとSolが[本評価前の条件凍結](../reviews/2026-11-17-e-means-pre-test-review.md)を承認しました。本評価後は、台帳、時間変動と数値再現性、品質と速度の解釈を同じ2系統で確認しました。
 
 ## CPU affinity起動監査の追補
 
