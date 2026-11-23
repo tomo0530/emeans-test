@@ -277,7 +277,9 @@ def _gpu_runtime_state(enabled: bool) -> dict[str, Any]:
     except AttributeError, RuntimeError:
         actual["float32_matmul_precision"] = None
     try:
-        actual["fill_uninitialized_memory"] = torch.utils.deterministic.fill_uninitialized_memory  # type: ignore[attr-defined]
+        # Torch exposes this property dynamically on the module.
+        deterministic: Any = torch.utils.deterministic
+        actual["fill_uninitialized_memory"] = deterministic.fill_uninitialized_memory
     except AttributeError, RuntimeError:
         actual["fill_uninitialized_memory"] = None
     return {**_gpu_runtime_requested(enabled), **actual}
