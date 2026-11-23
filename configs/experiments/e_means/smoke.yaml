@@ -1,0 +1,79 @@
+schema_version: 1
+plan_revision: '2026-11-18-cuda-deterministic-v1'
+phase: pilot
+conditions:
+- condition_id: smoke-S0
+  dataset_id: synthetic
+  n_train: 256
+  k: 8
+  dimension: 8
+  data_seeds:
+  - 100
+  generator_params:
+    n_components: 8
+    validation_size: 64
+    test_size: 64
+    variant: base
+methods:
+- method: faiss_lloyd
+  budgets:
+  - 1
+  params: {}
+- method: numpy_e_means
+  budgets:
+  - 1
+  params: {}
+- method: mini_batch
+  budgets:
+  - 1
+  params: {}
+- method: elkan
+  budgets:
+  - 1
+  params: {}
+- method: torch_e_means
+  budgets:
+  - 1
+  params: {}
+- method: torch_lloyd
+  budgets:
+  - 1
+  params: {}
+seeds:
+- 100
+measurement:
+  cohort: smoke
+  repeats: 1
+  evaluate_test: false
+  repeat_rules: []
+resources:
+  gpu_deterministic_algorithms: true
+  cpu_threads: 16
+  cpu_affinity:
+  - 0
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+  - 7
+  - 8
+  - 9
+  - 10
+  - 11
+  - 12
+  - 13
+  - 14
+  - 15
+  gpu_pool:
+  - 0
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+  - 7
+  gpu_memory_limit_bytes: 25769803776
+  host_memory_limit_bytes: 412316860416

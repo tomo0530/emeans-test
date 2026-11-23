@@ -1,0 +1,33 @@
+{
+  "scope": "pre-test qualification output; no main test metrics",
+  "implementation_commit": "bf73f55e569ed856a82c63c64725d58f693e04bf",
+  "local_audit_sha256": {
+    "profile-qualification.json": "6f998e1e985ef581fe6fc3deebbdf0ce8780b5b6fafa402c11141048bd6949d7",
+    "cpu-sentinel-qualification.json": "50234033ab56fb58ea5f92df0237c39c413dd31a567abb47a6ac05a02a8c88a6",
+    "coverage-parent-audit-bf73f55.json": "b88d33abb96b20a5a7dbdfeb28a08427a61ea01df499f3a12ffe4b69bb606117",
+    "timing-instability-inspection.json": "ba5c459399c80bd06e5431c50b6776d0731ef3ebdf4f1dd0e187977f493c1755",
+    "cpu-timing-instability-inspection.json": "74ea07153b463d98c3ff15d0232f3771219108beb7d876aceeceee0dd9064a36",
+    "formal-pilot-runtime-audit.json": "522ec590cc57c7c1ab5fbbf5ab29eeedcd380e68f27bf22793744ce1eddab1d1",
+    "cuda-device-mapping-audit.json": "0b9af692016476190e27bd22a4503475e931c48253ffe42834a9a7ce3f196181",
+    "sensitivity-plan.json": "eb0e271ab7b9378b1b754f2fe025ca1cbf4844b12f598520f8b06aba5f08c3eb",
+    "pre-main-campaign-status.json": "0329f6cdce7d780a59cce969782ff201566b81b0d6a5c43870ac20e445bcd55f",
+    "endpoint-preflight-gpu0.json": "30c98e1e78861993c2af39cde290d1a4a858a05b18d4d71d4bbb363432706426",
+    "run_main_campaign.py": "0df2752702f28470fc7a5abff3615e58e6b5df154408a04f1ae796b207980400",
+    "run_endpoint_sentinels.py": "a172521697827f74a75f511adb8510c7a7fb5674bb1ca40ace41b6c4a9471f4a"
+  },
+  "pilot_output_sha256": {
+    "formal-pilot-analysis-bf73f55/summary.json": "cc6a67c39b169694400779687bef8df654e3fb8de7f8a17c5ce3b8f8e813dd65",
+    "stock-sensitivity-bf73f55/sensitivity-status.json": "a141953ed374a1e0752b52bf278d2bf08a7458f9e9e2f66f4db2e6e43eef6166",
+    "stock-sensitivity-summary-bf73f55/summary.json": "8f930435ea68d5bda31e732a4bc9e5ee40448f80589664c12c057f6ffab8d2fd",
+    "stock-sensitivity-summary-bf73f55/aggregate.csv": "f2c631d350eb7dbac3361019c76612ff9a378bafdbd4f0485560fbf00557d198",
+    "stock-sensitivity-summary-bf73f55/paired.csv": "957a445f73a5c75c49a22071016d1b2054d7715e6b812cd54f6d257f8daac94c",
+    "stock-sensitivity-summary-bf73f55/by-profile.csv": "5722efb2c3bc367f48f60e71772e24d6cfe41124f7374f2c0800245a24030704",
+    "stock-sensitivity-summary-bf73f55/raw.csv": "61d235c21003779460b9eecca676b356d60e55edf694942419ddd3e84d288a1a"
+  },
+  "review_candidate_sha256": {
+    "docs/report/protocol/resolved-parameters/index.json": "1fbefe76924b134ef58c9aaf9180a5c1183882ed95f2d59e09dbe92918a918e8",
+    "docs/report/protocol/stock-sensitivity.csv": "32173a76a3b3a6d961c264a70c215d16549cbe8a1eef82d89fe661e1471098ec",
+    "configs/experiments/e_means/core.yaml": "d89e291d724d7fb2dbd3ae1b6ef4d3a20e398fb8e0dac2874fd5cd18bfb1dce4",
+    "configs/experiments/e_means/stress.yaml": "e7cce3bc6210cb62d3223615e327dfdb605a73997638633dd416fb9cc6307f4e"
+  }
+}

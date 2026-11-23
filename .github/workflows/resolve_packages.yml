@@ -45,7 +45,8 @@ jobs:
           GITHUB_EVENT_BEFORE: ${{ github.event.before }}
           GITHUB_EVENT_FORCED: ${{ github.event.forced }}
         run: |
-          # List all directories containing pyproject.toml (excluding root)
+          # Copied toolkit packages are outside this experiment's uv workspace.
+          ACTIVE_PACKAGE=project_module
           list_all_packages() {
             local packages dir
             packages=""
@@ -54,7 +55,7 @@ jobs:
               if [ "$dir" != "." ]; then
                 packages="$packages '$dir'"
               fi
-            done < <(find . -name pyproject.toml -not -path ./pyproject.toml | sed 's|^\./||')
+            done < <(find "./$ACTIVE_PACKAGE" -name pyproject.toml | sed 's|^\./||')
             echo "$packages" | xargs
           }
 
@@ -72,6 +73,10 @@ jobs:
             for dir in "${DIRS[@]}"; do
               trimmed=$(echo "$dir" | xargs)
               if [ -z "$trimmed" ]; then
+                continue
+              fi
+              if [ "$trimmed" != "$ACTIVE_PACKAGE" ]; then
+                echo "::warning::Skipping '$trimmed': outside the experiment workspace"
                 continue
               fi
               if [ ! -d "$trimmed" ]; then
@@ -134,7 +139,7 @@ jobs:
                 fi
                 dir=$(dirname "$dir")
               done
-              if [ -n "$package_dir" ]; then
+              if [ "$package_dir" = "$ACTIVE_PACKAGE" ]; then
                 PACKAGES="$PACKAGES '$package_dir'"
               fi
             done

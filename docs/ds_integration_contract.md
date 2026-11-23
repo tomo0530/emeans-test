@@ -211,8 +211,7 @@ class PricePredictionOutput(BaseModel):
 標準形:
 
 ```python
-def invoke(self, input_data: InputModel) -> OutputModel:
-    ...
+def invoke(self, input_data: InputModel) -> OutputModel: ...
 ```
 
 必要に応じて、実行制御のための `context` を追加してよい。
@@ -222,8 +221,7 @@ def invoke(
     self,
     input_data: InputModel,
     context: RunContext | None = None,
-) -> OutputModel:
-    ...
+) -> OutputModel: ...
 ```
 
 ただし、`context` にはモデル固有パラメータを入れない。モデル名、閾値、

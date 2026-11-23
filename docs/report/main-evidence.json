@@ -1,0 +1,4989 @@
+{
+  "frozen_commit": "983611654a38dcac4b96503b82ef27a5cc72b6c2",
+  "frozen_tree": "d2fd184f372ba350bc6eb976c73340a461cbc7fe",
+  "warm_windows": {
+    "count": 9520,
+    "overlaps": 0,
+    "clock": "monotonic_ns",
+    "order_by_condition_seed": {
+      "condition_seed_groups": 220,
+      "cpu_methods": [
+        "faiss_lloyd",
+        "numpy_e_means",
+        "mini_batch",
+        "elkan"
+      ],
+      "gpu_methods": [
+        "torch_e_means",
+        "torch_lloyd"
+      ],
+      "within_method": [
+        "budget_ascending",
+        "timing_repeat_ascending"
+      ],
+      "matches_planned_jobs": true
+    }
+  },
+  "started_at": "2026-11-18T00:39:08.789951+00:00",
+  "main_finished_at": "2026-11-21T19:56:03.790808+00:00",
+  "post_sentinel_finished_at": "2026-11-21T20:18:21.433075+00:00",
+  "protocol_gate_sha256": "106c8187213e8eb7905a6c9b288a9419190b1310bc2a98f5a3ee08fa21104a8b",
+  "gate_reviewers": {
+    "claude_opus_xhigh": "approved",
+    "gpt_6_2_sol_xhigh": "approved"
+  },
+  "endpoints": {
+    "seed": 101,
+    "post_measurements": 36,
+    "numerically_reproducible": true,
+    "timing_flagged_groups": 2,
+    "sha256": "73e68192c178c2ce4b7c9bb83e64a7f8dd858d28513a459fe84def7ee1dc4404"
+  },
+  "main_matrices": {
+    "core": {
+      "counts": {
+        "expected": 4480,
+        "terminal": 4480,
+        "success": 4480,
+        "failed": 0,
+        "infeasible": 0,
+        "unsupported": 0,
+        "interrupted": 0,
+        "missing": 0,
+        "invalid": 0,
+        "pending": 0,
+        "running": 0
+      },
+      "attainment": {
+        "reached": 370,
+        "unreached": 50
+      },
+      "device_counts": {
+        "cpu": 3020,
+        "cuda": 1460
+      },
+      "gpu_indices": {
+        "0": 1460
+      },
+      "common_initialization_groups": 100,
+      "positive_memory_observations": {
+        "peak_rss_bytes": 4480,
+        "peak_gpu_memory_bytes": 1460,
+        "gpu_peak_allocated_bytes": 1460,
+        "gpu_peak_reserved_bytes": 1460
+      },
+      "max_successful_trial_memory": {
+        "peak_rss_bytes": {
+          "bytes": 23224131584,
+          "run_id": "67408687cfb9d2691d7f"
+        },
+        "peak_gpu_memory_bytes": {
+          "bytes": 6191448064,
+          "run_id": "b111764e5cb34a012bed"
+        },
+        "gpu_peak_allocated_bytes": {
+          "bytes": 4739140096,
+          "run_id": "e5f619ed638f36385554"
+        },
+        "gpu_peak_reserved_bytes": {
+          "bytes": 5469372416,
+          "run_id": "b111764e5cb34a012bed"
+        }
+      },
+      "runtime_source": {
+        "dirty_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "git_head": "983611654a38dcac4b96503b82ef27a5cc72b6c2",
+        "lock_sha256": "da005928817fc818682b3fe0b77fd4ff95b4fa7e2d9dc45e3758951e65112927",
+        "source_sha256": "34324f1e1ec10d9cb7045cd4e590f9e561fb27484af41c78adc0b746dfc12719",
+        "versions": {
+          "faiss-cpu": "1.16.0",
+          "numpy": "2.5.4",
+          "scikit-learn": "1.9.1",
+          "torch": "2.14.1+cu126"
+        }
+      },
+      "binding_sha256": [
+        {
+          "file": "config.snapshot.json",
+          "sha256": "38de0204ff72dd23ae55634b5a8b575763a665009f3f85aee44d1f7152104d59"
+        },
+        {
+          "file": "hardware.snapshot.json",
+          "sha256": "4c7f123012a0a59e3b4d3a8e5bfa42f55b39169bd711c8b6f8d0d033d672ca6f"
+        },
+        {
+          "file": "jobs.json",
+          "sha256": "856844a497ae70575469f6830de2eb91a6545a79421c5d63aeb5bca2988ba6c9"
+        },
+        {
+          "file": "run-keys.json",
+          "sha256": "344b26783fa96e456059cadc393c491a56b58629bbc7183c84148061d361c2ec"
+        },
+        {
+          "file": "run-inputs.json",
+          "sha256": "116387a4a89caa317e97053295e0b73852278c9dcf90c0fd5d6e9cc2006e3f5e"
+        }
+      ],
+      "artifact_sha256": {
+        "analysis": "16b991eb80b34ce965f577b908a3ccd7c80f66eb00d52d910538e1957d4860bf",
+        "runtime": "bce443fcb8f5a8d95597cc6c6772e4091ea782de603d0af2c9ad34982b393537",
+        "figure_manifest": "f9b64baf3b4c92e790f218df349c5fc23ad49d61a914137739ec04cf774865e1",
+        "diagnostics": "4a823abe739c8ec5ba7e9ee6fcaded0f04d04ad32f3ce75996ddc59ac1204a14",
+        "raw_seeds": "b574a777ebb02fe32a016ceb62fff70012c358866688c605ea12fa338cf625e6"
+      }
+    },
+    "stress": {
+      "counts": {
+        "expected": 5040,
+        "terminal": 5040,
+        "success": 5040,
+        "failed": 0,
+        "infeasible": 0,
+        "unsupported": 0,
+        "interrupted": 0,
+        "missing": 0,
+        "invalid": 0,
+        "pending": 0,
+        "running": 0
+      },
+      "attainment": {
+        "unreached": 85,
+        "reached": 419
+      },
+      "device_counts": {
+        "cpu": 3400,
+        "cuda": 1640
+      },
+      "gpu_indices": {
+        "0": 1640
+      },
+      "common_initialization_groups": 120,
+      "positive_memory_observations": {
+        "peak_rss_bytes": 5040,
+        "peak_gpu_memory_bytes": 1640,
+        "gpu_peak_allocated_bytes": 1640,
+        "gpu_peak_reserved_bytes": 1640
+      },
+      "max_successful_trial_memory": {
+        "peak_rss_bytes": {
+          "bytes": 3861364736,
+          "run_id": "b71d83fe815a4db00ba6"
+        },
+        "peak_gpu_memory_bytes": {
+          "bytes": 2118778880,
+          "run_id": "d200b3907c483bb98f8d"
+        },
+        "gpu_peak_allocated_bytes": {
+          "bytes": 862369280,
+          "run_id": "d200b3907c483bb98f8d"
+        },
+        "gpu_peak_reserved_bytes": {
+          "bytes": 1396703232,
+          "run_id": "d200b3907c483bb98f8d"
+        }
+      },
+      "runtime_source": {
+        "dirty_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "git_head": "983611654a38dcac4b96503b82ef27a5cc72b6c2",
+        "lock_sha256": "da005928817fc818682b3fe0b77fd4ff95b4fa7e2d9dc45e3758951e65112927",
+        "source_sha256": "34324f1e1ec10d9cb7045cd4e590f9e561fb27484af41c78adc0b746dfc12719",
+        "versions": {
+          "faiss-cpu": "1.16.0",
+          "numpy": "2.5.4",
+          "scikit-learn": "1.9.1",
+          "torch": "2.14.1+cu126"
+        }
+      },
+      "binding_sha256": [
+        {
+          "file": "config.snapshot.json",
+          "sha256": "dfe79dac502b2e85db4c5ecc048188e1c26efae9c608d0c8bb09397af49f74f0"
+        },
+        {
+          "file": "hardware.snapshot.json",
+          "sha256": "4c7f123012a0a59e3b4d3a8e5bfa42f55b39169bd711c8b6f8d0d033d672ca6f"
+        },
+        {
+          "file": "jobs.json",
+          "sha256": "ee99c53725a8b50ea0ae97524ebbafb9e4cf77af88d75b96c0fc1f98d40f800f"
+        },
+        {
+          "file": "run-keys.json",
+          "sha256": "bf84c81e4b0f2d77ffe8c0b30492be1d9bb6d6625c547a319bd2a04726effd9d"
+        },
+        {
+          "file": "run-inputs.json",
+          "sha256": "0e0202f71a6683fa152ea49325d9452ac49cc32b10ed9bea0c95dfafe952aaea"
+        }
+      ],
+      "artifact_sha256": {
+        "analysis": "5f7915159bbe8ed9b62548450b39ec80438173b7fc16ce4f687749f6c829d5ca",
+        "runtime": "dcbadd79022ce807b9de43fd8ac54f7e7a541cc8049e6db90e865bf892a17b44",
+        "figure_manifest": "7ba41d9028a952c29c52d1fc7d9a85ac14e1b946d8394d3b9a4b0b8e74ece802",
+        "diagnostics": "c6b190f8c93eac46118a697b46b239d202e6f49ff0a64ccbc9473da6df281d6a",
+        "raw_seeds": "51c4daba5461319643dc232af35e4451412152392c03bf93474c6b38cd9ae9ef"
+      }
+    }
+  },
+  "figures": [
+    {
+      "mode": "core",
+      "condition_id": "arxiv_nomic-R0",
+      "file": "curves-arxiv_nomic-R0.svg",
+      "sha256": "d01a39c5e7a166e3b9e05378863031e8f9a05b5ada583ee916f9939799e4266f",
+      "source_points": 40,
+      "panel_points": {
+        "train_seconds:test_mse": 40,
+        "train_seconds:delta_percent": 40,
+        "e2e_seconds:test_mse": 40,
+        "train_seconds:train_mse": 40
+      },
+      "timing_repeats_per_seed": [
+        {
+          "method": "elkan",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 10.0,
+          "repeats": 3
+        },
+        {
+          "method": "elkan",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 50.0,
+          "repeats": 3
+        },
+        {
+          "method": "elkan",
+          "budget": 100.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 10.0,
+          "repeats": 3
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 50.0,
+          "repeats": 3
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 100.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 0.25,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 0.5,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 2.0,
+          "repeats": 3
+        },
+        {
+          "method": "mini_batch",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 10.0,
+          "repeats": 3
+        },
+        {
+          "method": "mini_batch",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 3.0,
+          "repeats": 3
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 8.0,
+          "repeats": 3
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 12.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 3.0,
+          "repeats": 3
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 8.0,
+          "repeats": 3
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 12.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 10.0,
+          "repeats": 3
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 50.0,
+          "repeats": 3
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 100.0,
+          "repeats": 1
+        }
+      ],
+      "source_sha256": "9731db05e86965b99f2f680d742be0673823e11a4cf009777c355e1e01c5b5eb"
+    },
+    {
+      "mode": "core",
+      "condition_id": "arxiv_nomic-Rn-small",
+      "file": "curves-arxiv_nomic-Rn-small.svg",
+      "sha256": "dbe36b1816b2638e24af3599692adabb050818b5fa6973cb9d6417844175ea9d",
+      "source_points": 40,
+      "panel_points": {
+        "train_seconds:test_mse": 40,
+        "train_seconds:delta_percent": 40,
+        "e2e_seconds:test_mse": 40,
+        "train_seconds:train_mse": 40
+      },
+      "timing_repeats_per_seed": [
+        {
+          "method": "elkan",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 100.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 100.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 0.25,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 0.5,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 3.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 8.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 12.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 3.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 8.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 12.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 100.0,
+          "repeats": 1
+        }
+      ],
+      "source_sha256": "17757c6ed587d690eaea56f15558463d0d044e917421f6197877a8371c975f5e"
+    },
+    {
+      "mode": "core",
+      "condition_id": "arxiv_nomic-Rn-full",
+      "file": "curves-arxiv_nomic-Rn-full.svg",
+      "sha256": "84121c1242399aa3e9849389e5aae77059991f69484491b071d0e6bd018a1107",
+      "source_points": 40,
+      "panel_points": {
+        "train_seconds:test_mse": 40,
+        "train_seconds:delta_percent": 40,
+        "e2e_seconds:test_mse": 40,
+        "train_seconds:train_mse": 40
+      },
+      "timing_repeats_per_seed": [
+        {
+          "method": "elkan",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 100.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 100.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 0.25,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 0.5,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 3.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 8.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 12.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 3.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 8.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 12.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 100.0,
+          "repeats": 1
+        }
+      ],
+      "source_sha256": "28ed2126f7d9af6124f714f568212802e48591d274f8c7039c0e5b9a7204a221"
+    },
+    {
+      "mode": "core",
+      "condition_id": "arxiv_nomic-Rk-small",
+      "file": "curves-arxiv_nomic-Rk-small.svg",
+      "sha256": "73df997eb417c494eb391a6d70b4d4df22208c1c8098af696723d6a9283d8446",
+      "source_points": 40,
+      "panel_points": {
+        "train_seconds:test_mse": 40,
+        "train_seconds:delta_percent": 40,
+        "e2e_seconds:test_mse": 40,
+        "train_seconds:train_mse": 40
+      },
+      "timing_repeats_per_seed": [
+        {
+          "method": "elkan",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 100.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 100.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 0.25,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 0.5,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 3.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 8.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 12.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 3.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 8.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 12.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 100.0,
+          "repeats": 1
+        }
+      ],
+      "source_sha256": "48ea89cc5682d130e0d87164c5cc45627a287e075eb82b3ce52f5c1da394866d"
+    },
+    {
+      "mode": "core",
+      "condition_id": "arxiv_nomic-Rk-large",
+      "file": "curves-arxiv_nomic-Rk-large.svg",
+      "sha256": "10ca76feb1ac9d96d7544b77b35cf20c8c08f547fb324e27d94f1585f697ae6c",
+      "source_points": 40,
+      "panel_points": {
+        "train_seconds:test_mse": 40,
+        "train_seconds:delta_percent": 40,
+        "e2e_seconds:test_mse": 40,
+        "train_seconds:train_mse": 40
+      },
+      "timing_repeats_per_seed": [
+        {
+          "method": "elkan",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 100.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 100.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 0.25,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 0.5,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 3.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 8.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 12.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 3.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 8.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 12.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 100.0,
+          "repeats": 1
+        }
+      ],
+      "source_sha256": "538a0fa2c44634875fa3275be7afb38cf7a6e54dbefcce593262e9e6d4fbc824"
+    },
+    {
+      "mode": "core",
+      "condition_id": "landmark_nomic-R0",
+      "file": "curves-landmark_nomic-R0.svg",
+      "sha256": "8e4e0d4d2af299cca9698b8114532a1702e559b11359b26229324a70d794162c",
+      "source_points": 40,
+      "panel_points": {
+        "train_seconds:test_mse": 40,
+        "train_seconds:delta_percent": 40,
+        "e2e_seconds:test_mse": 40,
+        "train_seconds:train_mse": 40
+      },
+      "timing_repeats_per_seed": [
+        {
+          "method": "elkan",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 10.0,
+          "repeats": 3
+        },
+        {
+          "method": "elkan",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 50.0,
+          "repeats": 3
+        },
+        {
+          "method": "elkan",
+          "budget": 100.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 10.0,
+          "repeats": 3
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 50.0,
+          "repeats": 3
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 100.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 0.25,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 0.5,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 2.0,
+          "repeats": 3
+        },
+        {
+          "method": "mini_batch",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 10.0,
+          "repeats": 3
+        },
+        {
+          "method": "mini_batch",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 3.0,
+          "repeats": 3
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 8.0,
+          "repeats": 3
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 12.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 3.0,
+          "repeats": 3
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 8.0,
+          "repeats": 3
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 12.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 10.0,
+          "repeats": 3
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 50.0,
+          "repeats": 3
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 100.0,
+          "repeats": 1
+        }
+      ],
+      "source_sha256": "09d6dfa364b8b1ba9a25d997c9915e1719d9e7b6a1bd521bbf4c26990e96ccd5"
+    },
+    {
+      "mode": "core",
+      "condition_id": "landmark_nomic-Rn-small",
+      "file": "curves-landmark_nomic-Rn-small.svg",
+      "sha256": "e699ca684f39dbb0040deeba486b722889f9953fac142ac0522427589f3afafc",
+      "source_points": 40,
+      "panel_points": {
+        "train_seconds:test_mse": 40,
+        "train_seconds:delta_percent": 40,
+        "e2e_seconds:test_mse": 40,
+        "train_seconds:train_mse": 40
+      },
+      "timing_repeats_per_seed": [
+        {
+          "method": "elkan",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 100.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 100.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 0.25,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 0.5,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 3.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 8.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 12.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 3.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 8.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 12.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 100.0,
+          "repeats": 1
+        }
+      ],
+      "source_sha256": "577c4467cb80dd09a2862f182ea1972187cd66909a5f313d41a5f5ff22624a7d"
+    },
+    {
+      "mode": "core",
+      "condition_id": "landmark_nomic-Rn-full",
+      "file": "curves-landmark_nomic-Rn-full.svg",
+      "sha256": "0f933f3c1b718a1a13baaa127158e899edae8b0fc1da3fcef05ee7778119550c",
+      "source_points": 40,
+      "panel_points": {
+        "train_seconds:test_mse": 40,
+        "train_seconds:delta_percent": 40,
+        "e2e_seconds:test_mse": 40,
+        "train_seconds:train_mse": 40
+      },
+      "timing_repeats_per_seed": [
+        {
+          "method": "elkan",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 100.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 100.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 0.25,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 0.5,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 3.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 8.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 12.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 3.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 8.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 12.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 100.0,
+          "repeats": 1
+        }
+      ],
+      "source_sha256": "f69de733013e95c0400a666eae8f370a772514323234d4bf39ea43efc548abb9"
+    },
+    {
+      "mode": "core",
+      "condition_id": "landmark_nomic-Rk-small",
+      "file": "curves-landmark_nomic-Rk-small.svg",
+      "sha256": "1f85be033c3de524c3808e247a990ed3b9aae41fd24265fb09389ea13d585609",
+      "source_points": 40,
+      "panel_points": {
+        "train_seconds:test_mse": 40,
+        "train_seconds:delta_percent": 40,
+        "e2e_seconds:test_mse": 40,
+        "train_seconds:train_mse": 40
+      },
+      "timing_repeats_per_seed": [
+        {
+          "method": "elkan",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 100.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 100.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 0.25,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 0.5,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 3.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 8.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 12.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 3.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 8.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 12.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 100.0,
+          "repeats": 1
+        }
+      ],
+      "source_sha256": "874faa5150a43c8b0f019dd7043df1b19595dc2d38f574ea93f51543d7ca8ab3"
+    },
+    {
+      "mode": "core",
+      "condition_id": "landmark_nomic-Rk-large",
+      "file": "curves-landmark_nomic-Rk-large.svg",
+      "sha256": "097ad6168edc8ac7b778a85c577c1b10db564eb2af19a80fe4d01b1cfe84d1ba",
+      "source_points": 40,
+      "panel_points": {
+        "train_seconds:test_mse": 40,
+        "train_seconds:delta_percent": 40,
+        "e2e_seconds:test_mse": 40,
+        "train_seconds:train_mse": 40
+      },
+      "timing_repeats_per_seed": [
+        {
+          "method": "elkan",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 100.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 100.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 0.25,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 0.5,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 3.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 8.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 12.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 3.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 8.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 12.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 100.0,
+          "repeats": 1
+        }
+      ],
+      "source_sha256": "306d4b9f15b6f790b0edee6b92a6ff6d68706e4c9021d10fde733d0ac6117a02"
+    },
+    {
+      "mode": "stress",
+      "condition_id": "S0",
+      "file": "curves-S0.svg",
+      "sha256": "5c2ac36956669afb87702f0978b6f318a5e26e711695ff220ddf228342476998",
+      "source_points": 40,
+      "panel_points": {
+        "train_seconds:test_mse": 40,
+        "train_seconds:delta_percent": 40,
+        "e2e_seconds:test_mse": 40,
+        "train_seconds:train_mse": 40
+      },
+      "timing_repeats_per_seed": [
+        {
+          "method": "elkan",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 10.0,
+          "repeats": 3
+        },
+        {
+          "method": "elkan",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 50.0,
+          "repeats": 3
+        },
+        {
+          "method": "elkan",
+          "budget": 100.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 10.0,
+          "repeats": 3
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 50.0,
+          "repeats": 3
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 100.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 0.25,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 0.5,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 2.0,
+          "repeats": 3
+        },
+        {
+          "method": "mini_batch",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 10.0,
+          "repeats": 3
+        },
+        {
+          "method": "mini_batch",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 3.0,
+          "repeats": 3
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 8.0,
+          "repeats": 3
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 12.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 3.0,
+          "repeats": 3
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 8.0,
+          "repeats": 3
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 12.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 10.0,
+          "repeats": 3
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 50.0,
+          "repeats": 3
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 100.0,
+          "repeats": 1
+        }
+      ],
+      "source_sha256": "bf2399588878c898f53a2f3bffdc7de240685d04b8c1e8c2784a0cd9e4da0bbf"
+    },
+    {
+      "mode": "stress",
+      "condition_id": "Sn",
+      "file": "curves-Sn.svg",
+      "sha256": "8d77be737b93cd2c3268b9a50cfdddc3f6729af3ee9b74d6d09ccea384f742e8",
+      "source_points": 40,
+      "panel_points": {
+        "train_seconds:test_mse": 40,
+        "train_seconds:delta_percent": 40,
+        "e2e_seconds:test_mse": 40,
+        "train_seconds:train_mse": 40
+      },
+      "timing_repeats_per_seed": [
+        {
+          "method": "elkan",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 100.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 100.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 0.25,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 0.5,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 3.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 8.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 12.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 3.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 8.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 12.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 100.0,
+          "repeats": 1
+        }
+      ],
+      "source_sha256": "f3484b01aff4a14ceccacc389c0e4b125f01f89c7f66f2c5a9eb739bcba99917"
+    },
+    {
+      "mode": "stress",
+      "condition_id": "Sd",
+      "file": "curves-Sd.svg",
+      "sha256": "00ab32cec7a4974ffa6d09808cfa979e2077259f5d9d16e20f7509ef8ba9c9f1",
+      "source_points": 40,
+      "panel_points": {
+        "train_seconds:test_mse": 40,
+        "train_seconds:delta_percent": 40,
+        "e2e_seconds:test_mse": 40,
+        "train_seconds:train_mse": 40
+      },
+      "timing_repeats_per_seed": [
+        {
+          "method": "elkan",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 100.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 100.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 0.25,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 0.5,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 3.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 8.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 12.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 3.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 8.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 12.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 100.0,
+          "repeats": 1
+        }
+      ],
+      "source_sha256": "00c76a85b9c8417fbebcca53ffd7a6e328876410bde409d6b7eb17647d4ce7ff"
+    },
+    {
+      "mode": "stress",
+      "condition_id": "Sk",
+      "file": "curves-Sk.svg",
+      "sha256": "3355af8f079b57624fd72023c32401a8c4f711d69439672cd497587d21c99f8f",
+      "source_points": 40,
+      "panel_points": {
+        "train_seconds:test_mse": 40,
+        "train_seconds:delta_percent": 40,
+        "e2e_seconds:test_mse": 40,
+        "train_seconds:train_mse": 40
+      },
+      "timing_repeats_per_seed": [
+        {
+          "method": "elkan",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 100.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 100.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 0.25,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 0.5,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 3.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 8.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 12.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 3.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 8.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 12.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 100.0,
+          "repeats": 1
+        }
+      ],
+      "source_sha256": "310a4466dc28366210a262e1ea9a96424fdf167e3f293cb7f32baab656fb9e5a"
+    },
+    {
+      "mode": "stress",
+      "condition_id": "Sratio",
+      "file": "curves-Sratio.svg",
+      "sha256": "26858e7ee218e2236871c4739076259690a76f27d7a5305aa4ab06a546ddc68a",
+      "source_points": 40,
+      "panel_points": {
+        "train_seconds:test_mse": 40,
+        "train_seconds:delta_percent": 40,
+        "e2e_seconds:test_mse": 40,
+        "train_seconds:train_mse": 40
+      },
+      "timing_repeats_per_seed": [
+        {
+          "method": "elkan",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 100.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 100.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 0.25,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 0.5,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 3.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 8.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 12.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 3.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 8.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 12.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 100.0,
+          "repeats": 1
+        }
+      ],
+      "source_sha256": "dee7c31373009bec3475b10e61939862802eb25e5dd4b10cf28f2ce60a9a41d2"
+    },
+    {
+      "mode": "stress",
+      "condition_id": "Soverlap",
+      "file": "curves-Soverlap.svg",
+      "sha256": "d7f38690a1de83bfd53843b21d278d446f3d3078b99ffeb7c240a3c783e79051",
+      "source_points": 40,
+      "panel_points": {
+        "train_seconds:test_mse": 40,
+        "train_seconds:delta_percent": 40,
+        "e2e_seconds:test_mse": 40,
+        "train_seconds:train_mse": 40
+      },
+      "timing_repeats_per_seed": [
+        {
+          "method": "elkan",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 100.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 100.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 0.25,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 0.5,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 3.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 8.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 12.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 3.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 8.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 12.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 100.0,
+          "repeats": 1
+        }
+      ],
+      "source_sha256": "1435f4b0d83230d15cd9f82d112e6fe82d81e7bed1390b123c39ce47bb5b71bb"
+    },
+    {
+      "mode": "stress",
+      "condition_id": "Saniso",
+      "file": "curves-Saniso.svg",
+      "sha256": "1fc5c9d41b18f35e063a17e1e0ac96441cc9221dfb521564c202bd9367cfe1ce",
+      "source_points": 40,
+      "panel_points": {
+        "train_seconds:test_mse": 40,
+        "train_seconds:delta_percent": 40,
+        "e2e_seconds:test_mse": 40,
+        "train_seconds:train_mse": 40
+      },
+      "timing_repeats_per_seed": [
+        {
+          "method": "elkan",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 100.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 100.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 0.25,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 0.5,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 3.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 8.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 12.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 3.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 8.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 12.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 100.0,
+          "repeats": 1
+        }
+      ],
+      "source_sha256": "67fd10dcd7d92ef0d3d359cfbb8f2a70be718f74e3d532f41d48bcdcf46475cb"
+    },
+    {
+      "mode": "stress",
+      "condition_id": "Srare",
+      "file": "curves-Srare.svg",
+      "sha256": "ae88abb18b4571999bf5f11f25366774f9aec90d6bd6621fcbb49aee03b9048d",
+      "source_points": 40,
+      "panel_points": {
+        "train_seconds:test_mse": 40,
+        "train_seconds:delta_percent": 40,
+        "e2e_seconds:test_mse": 40,
+        "train_seconds:train_mse": 40
+      },
+      "timing_repeats_per_seed": [
+        {
+          "method": "elkan",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 100.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 100.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 0.25,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 0.5,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 3.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 8.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 12.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 3.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 8.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 12.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 100.0,
+          "repeats": 1
+        }
+      ],
+      "source_sha256": "2dbe46cbb66792ee711b7c32119a00737f355c4cbfa47fe26145417cd49d1bd4"
+    },
+    {
+      "mode": "stress",
+      "condition_id": "Soutlier",
+      "file": "curves-Soutlier.svg",
+      "sha256": "4b72448c813a5e6147174ed1a9fa59ad39dd1b60f810ca8a4ffcf394d704e314",
+      "source_points": 40,
+      "panel_points": {
+        "train_seconds:test_mse": 40,
+        "train_seconds:delta_percent": 40,
+        "e2e_seconds:test_mse": 40,
+        "train_seconds:train_mse": 40
+      },
+      "timing_repeats_per_seed": [
+        {
+          "method": "elkan",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 100.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 100.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 0.25,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 0.5,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 3.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 8.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 12.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 3.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 8.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 12.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 100.0,
+          "repeats": 1
+        }
+      ],
+      "source_sha256": "94d7b8eca4b4f77e7fd06277c61c82a2c0e48d44702543a62c6697c45334d8ac"
+    },
+    {
+      "mode": "stress",
+      "condition_id": "Sduplicate",
+      "file": "curves-Sduplicate.svg",
+      "sha256": "bf1a742a28df630f91e5bcb64b5add294773681f4e920dee8c1814e015948150",
+      "source_points": 40,
+      "panel_points": {
+        "train_seconds:test_mse": 40,
+        "train_seconds:delta_percent": 40,
+        "e2e_seconds:test_mse": 40,
+        "train_seconds:train_mse": 40
+      },
+      "timing_repeats_per_seed": [
+        {
+          "method": "elkan",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 100.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 100.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 0.25,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 0.5,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 3.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 8.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 12.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 3.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 8.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 12.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 100.0,
+          "repeats": 1
+        }
+      ],
+      "source_sha256": "c0b3626edd9039995c888ad02291574b1fd6a62d327c5dded40994efa45e248c"
+    },
+    {
+      "mode": "stress",
+      "condition_id": "Sinteraction-1",
+      "file": "curves-Sinteraction-1.svg",
+      "sha256": "65b9fa4f8ec4e3df9c51a1179a7cb24f189613ec8d5045b5bd8d2f0839151a5b",
+      "source_points": 40,
+      "panel_points": {
+        "train_seconds:test_mse": 40,
+        "train_seconds:delta_percent": 40,
+        "e2e_seconds:test_mse": 40,
+        "train_seconds:train_mse": 40
+      },
+      "timing_repeats_per_seed": [
+        {
+          "method": "elkan",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 100.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 100.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 0.25,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 0.5,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 3.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 8.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 12.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 3.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 8.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 12.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 100.0,
+          "repeats": 1
+        }
+      ],
+      "source_sha256": "cc695894d03253874daa1f7417eb91ae7799d923c71e1943c0672c3b9c20963c"
+    },
+    {
+      "mode": "stress",
+      "condition_id": "Sinteraction-2",
+      "file": "curves-Sinteraction-2.svg",
+      "sha256": "0027b77e7982aca21c7ea12473148f6765508f2e5067fefbf27e3153f28caac8",
+      "source_points": 40,
+      "panel_points": {
+        "train_seconds:test_mse": 40,
+        "train_seconds:delta_percent": 40,
+        "e2e_seconds:test_mse": 40,
+        "train_seconds:train_mse": 40
+      },
+      "timing_repeats_per_seed": [
+        {
+          "method": "elkan",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "elkan",
+          "budget": 100.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "faiss_lloyd",
+          "budget": 100.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 0.25,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 0.5,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "mini_batch",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 3.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 8.0,
+          "repeats": 1
+        },
+        {
+          "method": "numpy_e_means",
+          "budget": 12.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 3.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 8.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_e_means",
+          "budget": 12.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 1.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 2.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 5.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 10.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 25.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 50.0,
+          "repeats": 1
+        },
+        {
+          "method": "torch_lloyd",
+          "budget": 100.0,
+          "repeats": 1
+        }
+      ],
+      "source_sha256": "afd70f25204d17b64799450f4fca9c089a8012372da6f7b0924811236dc420ee"
+    }
+  ],
+  "table_sha256": {
+    "attainment.csv": "46671885ea398cb55c3351122144ccf3c19a0ece146d17918ae0158f62e99694",
+    "endpoint-sentinels.csv": "75cd4a96ee54e563fd00c9ecc0b2913713ba68bc96830a9cea00f9307263dea6",
+    "validation-selected-diagnostics.csv": "90db3711863e7d3790aa4e4547386788ae4d784816110efbdf9be8f3d5cb7dcf",
+    "validation-selected-group-mse.csv": "ed4bf0b57a52a9f85b255e7d8e7fc5640b3d227a8d1a4f5683fd368d33e5c408",
+    "validation-selected.csv": "8ac4db40d8175461ee18867b8ce2947a1bd6fd29264ff1bc540a56899110c9d2"
+  }
+}

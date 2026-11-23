@@ -1,0 +1,286 @@
+schema_version: 1
+plan_revision: '2026-11-18-cuda-deterministic-v1'
+phase: main
+conditions:
+- condition_id: arxiv_nomic-R0
+  dataset_id: arxiv_nomic
+  n_train: 500000
+  k: 2048
+  dimension: 768
+  data_seeds:
+  - 42
+  generator_params: {}
+- condition_id: arxiv_nomic-Rn-small
+  dataset_id: arxiv_nomic
+  n_train: 100000
+  k: 2048
+  dimension: 768
+  data_seeds:
+  - 42
+  generator_params: {}
+- condition_id: arxiv_nomic-Rn-full
+  dataset_id: arxiv_nomic
+  n_train: 1324643
+  k: 2048
+  dimension: 768
+  data_seeds:
+  - 42
+  generator_params: {}
+- condition_id: arxiv_nomic-Rk-small
+  dataset_id: arxiv_nomic
+  n_train: 500000
+  k: 256
+  dimension: 768
+  data_seeds:
+  - 42
+  generator_params: {}
+- condition_id: arxiv_nomic-Rk-large
+  dataset_id: arxiv_nomic
+  n_train: 500000
+  k: 8192
+  dimension: 768
+  data_seeds:
+  - 42
+  generator_params: {}
+- condition_id: landmark_nomic-R0
+  dataset_id: landmark_nomic
+  n_train: 500000
+  k: 2048
+  dimension: 768
+  data_seeds:
+  - 42
+  generator_params: {}
+- condition_id: landmark_nomic-Rn-small
+  dataset_id: landmark_nomic
+  n_train: 100000
+  k: 2048
+  dimension: 768
+  data_seeds:
+  - 42
+  generator_params: {}
+- condition_id: landmark_nomic-Rn-full
+  dataset_id: landmark_nomic
+  n_train: 740757
+  k: 2048
+  dimension: 768
+  data_seeds:
+  - 42
+  generator_params: {}
+- condition_id: landmark_nomic-Rk-small
+  dataset_id: landmark_nomic
+  n_train: 500000
+  k: 256
+  dimension: 768
+  data_seeds:
+  - 42
+  generator_params: {}
+- condition_id: landmark_nomic-Rk-large
+  dataset_id: landmark_nomic
+  n_train: 500000
+  k: 8192
+  dimension: 768
+  data_seeds:
+  - 42
+  generator_params: {}
+methods:
+- method: faiss_lloyd
+  budgets:
+  - 1
+  - 2
+  - 5
+  - 10
+  - 25
+  - 50
+  - 100
+  params: {}
+- method: numpy_e_means
+  budgets:
+  - 1
+  - 2
+  - 3
+  - 5
+  - 8
+  - 12
+  params: {}
+- method: mini_batch
+  budgets:
+  - 0.25
+  - 0.5
+  - 1
+  - 2
+  - 5
+  - 10
+  - 25
+  params: {}
+- method: elkan
+  budgets:
+  - 1
+  - 2
+  - 5
+  - 10
+  - 25
+  - 50
+  - 100
+  params: {}
+- method: torch_e_means
+  budgets:
+  - 1
+  - 2
+  - 3
+  - 5
+  - 8
+  - 12
+  params: {}
+- method: torch_lloyd
+  budgets:
+  - 1
+  - 2
+  - 5
+  - 10
+  - 25
+  - 50
+  - 100
+  params: {}
+seeds:
+- 0
+- 1
+- 2
+- 3
+- 4
+- 5
+- 6
+- 7
+- 8
+- 9
+measurement:
+  cohort: main-isolated
+  repeats: 1
+  evaluate_test: true
+  repeat_rules:
+  - condition_id: arxiv_nomic-R0
+    method: faiss_lloyd
+    budget: 10
+    repeats: 3
+  - condition_id: arxiv_nomic-R0
+    method: faiss_lloyd
+    budget: 50
+    repeats: 3
+  - condition_id: arxiv_nomic-R0
+    method: numpy_e_means
+    budget: 3
+    repeats: 3
+  - condition_id: arxiv_nomic-R0
+    method: numpy_e_means
+    budget: 8
+    repeats: 3
+  - condition_id: arxiv_nomic-R0
+    method: mini_batch
+    budget: 2
+    repeats: 3
+  - condition_id: arxiv_nomic-R0
+    method: mini_batch
+    budget: 10
+    repeats: 3
+  - condition_id: arxiv_nomic-R0
+    method: elkan
+    budget: 10
+    repeats: 3
+  - condition_id: arxiv_nomic-R0
+    method: elkan
+    budget: 50
+    repeats: 3
+  - condition_id: arxiv_nomic-R0
+    method: torch_e_means
+    budget: 3
+    repeats: 3
+  - condition_id: arxiv_nomic-R0
+    method: torch_e_means
+    budget: 8
+    repeats: 3
+  - condition_id: arxiv_nomic-R0
+    method: torch_lloyd
+    budget: 10
+    repeats: 3
+  - condition_id: arxiv_nomic-R0
+    method: torch_lloyd
+    budget: 50
+    repeats: 3
+  - condition_id: landmark_nomic-R0
+    method: faiss_lloyd
+    budget: 10
+    repeats: 3
+  - condition_id: landmark_nomic-R0
+    method: faiss_lloyd
+    budget: 50
+    repeats: 3
+  - condition_id: landmark_nomic-R0
+    method: numpy_e_means
+    budget: 3
+    repeats: 3
+  - condition_id: landmark_nomic-R0
+    method: numpy_e_means
+    budget: 8
+    repeats: 3
+  - condition_id: landmark_nomic-R0
+    method: mini_batch
+    budget: 2
+    repeats: 3
+  - condition_id: landmark_nomic-R0
+    method: mini_batch
+    budget: 10
+    repeats: 3
+  - condition_id: landmark_nomic-R0
+    method: elkan
+    budget: 10
+    repeats: 3
+  - condition_id: landmark_nomic-R0
+    method: elkan
+    budget: 50
+    repeats: 3
+  - condition_id: landmark_nomic-R0
+    method: torch_e_means
+    budget: 3
+    repeats: 3
+  - condition_id: landmark_nomic-R0
+    method: torch_e_means
+    budget: 8
+    repeats: 3
+  - condition_id: landmark_nomic-R0
+    method: torch_lloyd
+    budget: 10
+    repeats: 3
+  - condition_id: landmark_nomic-R0
+    method: torch_lloyd
+    budget: 50
+    repeats: 3
+resources:
+  gpu_deterministic_algorithms: true
+  cpu_threads: 16
+  cpu_affinity:
+  - 0
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+  - 7
+  - 8
+  - 9
+  - 10
+  - 11
+  - 12
+  - 13
+  - 14
+  - 15
+  gpu_pool:
+  - 0
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+  - 7
+  gpu_memory_limit_bytes: 25769803776
+  host_memory_limit_bytes: 412316860416

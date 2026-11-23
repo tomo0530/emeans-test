@@ -1,15 +1,16 @@
 [project]
 name = "project"
 version = "0.1.0"
-requires-python = ">=3.10,<3.13"
+requires-python = ">=3.14,<3.15"
 dependencies = [
-    "lastpass-secret-provider",
     "project-module",
-    "spreadsheet",
 ]
 
+[project.optional-dependencies]
+gpu = ["project-module[gpu]"]
+
 [tool.uv]
-default-groups = "all"
+default-groups = ["dev"]
 # Dependency cooldowns: Exclude recently released packages to mitigate supply chain attack risks.
 # Adjust the duration based on your project's security requirements (e.g., "24 hours", "3 days", "1 week", "30 days").
 # Ref: https://docs.astral.sh/uv/concepts/resolution/#dependency-cooldowns
@@ -20,7 +21,8 @@ exclude-newer = "1 week"
 # compromised root CA (GHSA-6q48-6c7w-9gw2, released 2026-10-20) can be
 # resolved immediately. Remove this override once certifi 2026.10.19 is older
 # than the cooldown period.
-exclude-newer-package = { certifi = "0 days" }
+exclude-newer-package = { certifi = "0 days", faiss-cpu = "0 days" }
+# User-approved exception for the pinned e-means/Faiss validation artifact.
 # Security floors for transitive dependencies. These are not direct dependencies,
 # so constraining them here keeps the floor in effect no matter which dependency
 # group pulls them in, and without declaring them as direct dependencies.
@@ -69,16 +71,17 @@ constraint-dependencies = [
 
 [tool.uv.sources]
 project-module = { workspace = true }
-lastpass-secret-provider = { workspace = true }
-spreadsheet = { workspace = true }
+torch = { index = "pytorch-cu126" }
 
 [dependency-groups]
 dev = [
-    "mypy~=1.15.0",
-    "ruff~=0.11.2",
-    "pytest~=8.4.1",
-    "pytest-cov~=6.2.1",
-    "pytest-mock~=3.12.0",
+    "mypy>=1.19,<2",
+    "ruff>=0.14,<1",
+    "pytest>=9,<10",
+    "pytest-cov>=7,<8",
+    "pytest-mock>=3.15,<4",
+    "types-PyYAML>=6,<7",
+    "types-psutil>=7,<8",
 ]
 jupyter = [
     # jupyterlab >= 4.6.4 / notebook >= 7.6.3 are required to fix a HIGH
@@ -95,6 +98,9 @@ jupyter = [
 [tool.uv.workspace]
 members = [
     "project_module",
-    "libs/abeja-toolkit/lastpass_secret_provider",
-    "libs/abeja-toolkit/spreadsheet",
 ]
+
+[[tool.uv.index]]
+name = "pytorch-cu126"
+url = "https://download.pytorch.org/whl/cu126"
+explicit = true

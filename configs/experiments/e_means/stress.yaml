@@ -1,0 +1,410 @@
+schema_version: 1
+plan_revision: '2026-11-18-cuda-deterministic-v1'
+phase: main
+conditions:
+- condition_id: S0
+  dataset_id: synthetic
+  n_train: 100000
+  k: 256
+  dimension: 128
+  data_seeds:
+  - 0
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+  - 7
+  - 8
+  - 9
+  generator_params:
+    n_components: 256
+    validation_size: 10000
+    test_size: 10000
+    variant: base
+- condition_id: Sn
+  dataset_id: synthetic
+  n_train: 1000000
+  k: 256
+  dimension: 128
+  data_seeds:
+  - 0
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+  - 7
+  - 8
+  - 9
+  generator_params:
+    n_components: 256
+    validation_size: 10000
+    test_size: 10000
+    variant: base
+- condition_id: Sd
+  dataset_id: synthetic
+  n_train: 100000
+  k: 256
+  dimension: 1024
+  data_seeds:
+  - 0
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+  - 7
+  - 8
+  - 9
+  generator_params:
+    n_components: 256
+    validation_size: 10000
+    test_size: 10000
+    variant: base
+- condition_id: Sk
+  dataset_id: synthetic
+  n_train: 100000
+  k: 2048
+  dimension: 128
+  data_seeds:
+  - 0
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+  - 7
+  - 8
+  - 9
+  generator_params:
+    n_components: 256
+    validation_size: 10000
+    test_size: 10000
+    variant: base
+- condition_id: Sratio
+  dataset_id: synthetic
+  n_train: 16384
+  k: 2048
+  dimension: 128
+  data_seeds:
+  - 0
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+  - 7
+  - 8
+  - 9
+  generator_params:
+    n_components: 256
+    validation_size: 10000
+    test_size: 10000
+    variant: base
+- condition_id: Soverlap
+  dataset_id: synthetic
+  n_train: 100000
+  k: 256
+  dimension: 128
+  data_seeds:
+  - 0
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+  - 7
+  - 8
+  - 9
+  generator_params:
+    n_components: 256
+    validation_size: 10000
+    test_size: 10000
+    variant: overlap
+- condition_id: Saniso
+  dataset_id: synthetic
+  n_train: 100000
+  k: 256
+  dimension: 128
+  data_seeds:
+  - 0
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+  - 7
+  - 8
+  - 9
+  generator_params:
+    n_components: 256
+    validation_size: 10000
+    test_size: 10000
+    variant: aniso
+- condition_id: Srare
+  dataset_id: synthetic
+  n_train: 100000
+  k: 256
+  dimension: 128
+  data_seeds:
+  - 0
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+  - 7
+  - 8
+  - 9
+  generator_params:
+    n_components: 256
+    validation_size: 10000
+    test_size: 10000
+    variant: rare
+- condition_id: Soutlier
+  dataset_id: synthetic
+  n_train: 100000
+  k: 256
+  dimension: 128
+  data_seeds:
+  - 0
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+  - 7
+  - 8
+  - 9
+  generator_params:
+    n_components: 256
+    validation_size: 10000
+    test_size: 10000
+    variant: outlier
+- condition_id: Sduplicate
+  dataset_id: synthetic
+  n_train: 100000
+  k: 256
+  dimension: 128
+  data_seeds:
+  - 0
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+  - 7
+  - 8
+  - 9
+  generator_params:
+    n_components: 256
+    validation_size: 10000
+    test_size: 10000
+    variant: duplicate
+- condition_id: Sinteraction-1
+  dataset_id: synthetic
+  n_train: 100000
+  k: 256
+  dimension: 1024
+  data_seeds:
+  - 0
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+  - 7
+  - 8
+  - 9
+  generator_params:
+    n_components: 256
+    validation_size: 10000
+    test_size: 10000
+    variant: interaction-1
+- condition_id: Sinteraction-2
+  dataset_id: synthetic
+  n_train: 100000
+  k: 2048
+  dimension: 128
+  data_seeds:
+  - 0
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+  - 7
+  - 8
+  - 9
+  generator_params:
+    n_components: 256
+    validation_size: 10000
+    test_size: 10000
+    variant: interaction-2
+methods:
+- method: faiss_lloyd
+  budgets:
+  - 1
+  - 2
+  - 5
+  - 10
+  - 25
+  - 50
+  - 100
+  params: {}
+- method: numpy_e_means
+  budgets:
+  - 1
+  - 2
+  - 3
+  - 5
+  - 8
+  - 12
+  params: {}
+- method: mini_batch
+  budgets:
+  - 0.25
+  - 0.5
+  - 1
+  - 2
+  - 5
+  - 10
+  - 25
+  params: {}
+- method: elkan
+  budgets:
+  - 1
+  - 2
+  - 5
+  - 10
+  - 25
+  - 50
+  - 100
+  params: {}
+- method: torch_e_means
+  budgets:
+  - 1
+  - 2
+  - 3
+  - 5
+  - 8
+  - 12
+  params: {}
+- method: torch_lloyd
+  budgets:
+  - 1
+  - 2
+  - 5
+  - 10
+  - 25
+  - 50
+  - 100
+  params: {}
+seeds:
+- 0
+- 1
+- 2
+- 3
+- 4
+- 5
+- 6
+- 7
+- 8
+- 9
+measurement:
+  cohort: main-isolated
+  repeats: 1
+  evaluate_test: true
+  repeat_rules:
+  - condition_id: S0
+    method: faiss_lloyd
+    budget: 10
+    repeats: 3
+  - condition_id: S0
+    method: faiss_lloyd
+    budget: 50
+    repeats: 3
+  - condition_id: S0
+    method: numpy_e_means
+    budget: 3
+    repeats: 3
+  - condition_id: S0
+    method: numpy_e_means
+    budget: 8
+    repeats: 3
+  - condition_id: S0
+    method: mini_batch
+    budget: 2
+    repeats: 3
+  - condition_id: S0
+    method: mini_batch
+    budget: 10
+    repeats: 3
+  - condition_id: S0
+    method: elkan
+    budget: 10
+    repeats: 3
+  - condition_id: S0
+    method: elkan
+    budget: 50
+    repeats: 3
+  - condition_id: S0
+    method: torch_e_means
+    budget: 3
+    repeats: 3
+  - condition_id: S0
+    method: torch_e_means
+    budget: 8
+    repeats: 3
+  - condition_id: S0
+    method: torch_lloyd
+    budget: 10
+    repeats: 3
+  - condition_id: S0
+    method: torch_lloyd
+    budget: 50
+    repeats: 3
+resources:
+  gpu_deterministic_algorithms: true
+  cpu_threads: 16
+  cpu_affinity:
+  - 0
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+  - 7
+  - 8
+  - 9
+  - 10
+  - 11
+  - 12
+  - 13
+  - 14
+  - 15
+  gpu_pool:
+  - 0
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+  - 7
+  gpu_memory_limit_bytes: 25769803776
+  host_memory_limit_bytes: 412316860416
